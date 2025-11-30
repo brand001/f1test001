@@ -1,0 +1,1176 @@
+diff --git a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
+index 8fa1171..4d0659c 100644
+--- a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
++++ b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
+@@ -1236,6 +1236,70 @@ function InternalTextInput(props: Props): React.Node {
+         ? StyleSheet.flatten([styles.multilineInput, props.style])
+         : props.style;
+ 
++
++
++          // === PATCH: 全局字体注入逻辑 ===
++        const styleArray = [].concat(style || []);
++        let fontWeight = null;
++        let hasColor = false;
++        const boldWeights = ["bold", "600", "700", "800", "900"];
++        for (const s of styleArray) {
++          if (!fontWeight && s && s.fontWeight) {
++            fontWeight = s.fontWeight;
++          }
++          if (s && s.color !== undefined) {
++            hasColor = true;
++          }
++        }
++        let fontFamily;
++        const overrideStyle = {};
++        const isThaiLanguage = global?.LANGUAGE === "TH";
++        const isVietnameseLanguage = global?.LANGUAGE === "VN";
++        
++        // Check if Android already has Roboto (default system font)
++        const hasAndroidRoboto = Platform.OS === 'android' && 
++          (Platform.constants.fontScale !== undefined || Platform.Version >= 16);
++        
++        if (isThaiLanguage) {
++          const isBold = boldWeights.includes(fontWeight);
++        
++          if (Platform.OS === 'ios') {
++            fontFamily = 'NotoSansThai-Regular';
++          } else {
++            fontFamily = isBold ? 'NotoSansThai-Bold' : 'NotoSansThai-Regular';
++        
++            // ⚠️ Android 必须清除 fontWeight，否则不会加载自定义 bold 字体
++            if (isBold) {
++              overrideStyle.fontWeight = 'normal';
++            }
++          }
++        
++          overrideStyle.fontFamily = fontFamily;
++        } else if (isVietnameseLanguage && !(Platform.OS === 'android' && hasAndroidRoboto)) {
++          const isBold = boldWeights.includes(fontWeight);
++          
++          if (Platform.OS === 'ios') {
++            fontFamily = 'Roboto-Regular';
++          } else {
++            fontFamily = isBold ? 'Roboto-Bold' : 'Roboto-Regular';
++            
++            // ⚠️ Android 必须清除 fontWeight，否则不会加载自定义 bold 字体
++            if (isBold) {
++              overrideStyle.fontWeight = 'normal';
++            }
++          }
++          
++          overrideStyle.fontFamily = fontFamily;
++        }
++        
++        if (!hasColor) {
++          overrideStyle.color = '#000000';
++        }
++        
++        // ✅ patch 优先，用户 style 放后面（低优先级）
++        const mergedStyle = [styleArray, overrideStyle].flat();
++        // === PATCH END ===
++
+     const useOnChangeSync =
+       (props.unstable_onChangeSync || props.unstable_onChangeTextSync) &&
+       !(props.onChange || props.onChangeText);
+@@ -1261,7 +1325,7 @@ function InternalTextInput(props: Props): React.Node {
+         onSelectionChange={_onSelectionChange}
+         onSelectionChangeShouldSetResponder={emptyFunctionThatReturnsTrue}
+         selection={selection}
+-        style={style}
++        style={mergedStyle}
+         text={text}
+       />
+     );
+@@ -1279,6 +1343,70 @@ function InternalTextInput(props: Props): React.Node {
+       children = <Text>{children}</Text>;
+     }
+ 
++
++
++    // === PATCH: 全局字体注入逻辑 ===
++        const styleArray = [].concat(style || []);
++        let fontWeight = null;
++        let hasColor = false;
++        const boldWeights = ["bold", "600", "700", "800", "900"];
++        for (const s of styleArray) {
++          if (!fontWeight && s && s.fontWeight) {
++            fontWeight = s.fontWeight;
++          }
++          if (s && s.color !== undefined) {
++            hasColor = true;
++          }
++        }
++        let fontFamily;
++        const overrideStyle = {};
++        const isThaiLanguage = global?.LANGUAGE === "TH";
++        const isVietnameseLanguage = global?.LANGUAGE === "VN";
++        
++        // Check if Android already has Roboto (default system font)
++        const hasAndroidRoboto = Platform.OS === 'android' && 
++          (Platform.constants.fontScale !== undefined || Platform.Version >= 16);
++        
++        if (isThaiLanguage) {
++          const isBold = boldWeights.includes(fontWeight);
++        
++          if (Platform.OS === 'ios') {
++            fontFamily = 'NotoSansThai-Regular';
++          } else {
++            fontFamily = isBold ? 'NotoSansThai-Bold' : 'NotoSansThai-Regular';
++        
++            // ⚠️ Android 必须清除 fontWeight，否则不会加载自定义 bold 字体
++            if (isBold) {
++              overrideStyle.fontWeight = 'normal';
++            }
++          }
++        
++          overrideStyle.fontFamily = fontFamily;
++        } else if (isVietnameseLanguage && !(Platform.OS === 'android' && hasAndroidRoboto)) {
++          const isBold = boldWeights.includes(fontWeight);
++          
++          if (Platform.OS === 'ios') {
++            fontFamily = 'Roboto-Regular';
++          } else {
++            fontFamily = isBold ? 'Roboto-Bold' : 'Roboto-Regular';
++            
++            // ⚠️ Android 必须清除 fontWeight，否则不会加载自定义 bold 字体
++            if (isBold) {
++              overrideStyle.fontWeight = 'normal';
++            }
++          }
++          
++          overrideStyle.fontFamily = fontFamily;
++        }
++        
++        if (!hasColor) {
++          overrideStyle.color = '#000000';
++        }
++        
++        // ✅ patch 优先，用户 style 放后面（低优先级）
++        const mergedStyle = [styleArray, overrideStyle].flat();
++        // === PATCH END ===
++
+     textInput = (
+       /* $FlowFixMe[prop-missing] the types for AndroidTextInput don't match up
+        * exactly with the props for TextInput. This will need to get fixed */
+@@ -1313,7 +1441,7 @@ function InternalTextInput(props: Props): React.Node {
+         onSelectionChange={_onSelectionChange}
+         placeholder={placeholder}
+         selection={selection}
+-        style={style}
++        style={mergedStyle}
+         text={text}
+         textBreakStrategy={props.textBreakStrategy}
+       />
+diff --git a/node_modules/react-native/Libraries/Image/Image.android.js b/node_modules/react-native/Libraries/Image/Image.android.js
+index eac8a56..bbc0637 100644
+--- a/node_modules/react-native/Libraries/Image/Image.android.js
++++ b/node_modules/react-native/Libraries/Image/Image.android.js
+@@ -21,8 +21,8 @@ import NativeImageLoaderAndroid from './NativeImageLoaderAndroid';
+ 
+ import TextInlineImageNativeComponent from './TextInlineImageNativeComponent';
+ 
+-import type {ImageProps as ImagePropsType} from './ImageProps';
+-import type {RootTag} from '../Types/RootTagTypes';
++import type { ImageProps as ImagePropsType } from './ImageProps';
++import type { RootTag } from '../Types/RootTagTypes';
+ 
+ let _requestId = 1;
+ function generateRequestId() {
+@@ -45,9 +45,9 @@ function getSize(
+     })
+     .catch(
+       failure ||
+-        function () {
+-          console.warn('Failed to get size for image: ' + url);
+-        },
++      function () {
++        console.warn('Failed to get size for image: ' + url);
++      },
+     );
+ }
+ 
+@@ -59,7 +59,7 @@ function getSize(
+  */
+ function getSizeWithHeaders(
+   url: string,
+-  headers: {[string]: string, ...},
++  headers: { [string]: string, ...},
+   success: (width: number, height: number) => void,
+   failure?: (error: any) => void,
+ ): any {
+@@ -69,9 +69,9 @@ function getSizeWithHeaders(
+     })
+     .catch(
+       failure ||
+-        function () {
+-          console.warn('Failed to get size for image: ' + url);
+-        },
++      function () {
++        console.warn('Failed to get size for image: ' + url);
++      },
+     );
+ }
+ 
+@@ -102,18 +102,18 @@ function abortPrefetch(requestId: number) {
+  */
+ async function queryCache(
+   urls: Array<string>,
+-): Promise<{[string]: 'memory' | 'disk' | 'disk/memory', ...}> {
++): Promise<{ [string]: 'memory' | 'disk' | 'disk/memory', ...}> {
+   return await NativeImageLoaderAndroid.queryCache(urls);
+ }
+ 
+ export type ImageComponentStatics = $ReadOnly<{|
+   getSize: typeof getSize,
+-  getSizeWithHeaders: typeof getSizeWithHeaders,
+-  prefetch: typeof prefetch,
+-  prefetchWithMetadata: typeof prefetchWithMetadata,
+-  abortPrefetch: typeof abortPrefetch,
+-  queryCache: typeof queryCache,
+-  resolveAssetSource: typeof resolveAssetSource,
++    getSizeWithHeaders: typeof getSizeWithHeaders,
++      prefetch: typeof prefetch,
++        prefetchWithMetadata: typeof prefetchWithMetadata,
++          abortPrefetch: typeof abortPrefetch,
++            queryCache: typeof queryCache,
++              resolveAssetSource: typeof resolveAssetSource,
+ |}>;
+ 
+ /**
+@@ -164,15 +164,15 @@ const BaseImage = (props: ImagePropsType, forwardedRef) => {
+   let style;
+   let sources;
+   if (source?.uri != null) {
+-    const {width, height} = source;
+-    style = flattenStyle([{width, height}, styles.base, props.style]);
+-    sources = [{uri: source.uri}];
++    const { width, height } = source;
++    style = flattenStyle([{ width, height }, styles.base, props.style]);
++    sources = [{ uri: source.uri }];
+   } else {
+     style = flattenStyle([styles.base, props.style]);
+     sources = source;
+   }
+ 
+-  const {onLoadStart, onLoad, onLoadEnd, onError} = props;
++  const { onLoadStart, onLoad, onLoadEnd, onError } = props;
+   const nativeProps = {
+     ...props,
+     style,
+@@ -194,9 +194,9 @@ const BaseImage = (props: ImagePropsType, forwardedRef) => {
+         const nativePropsWithAnalytics =
+           analyticTag !== null
+             ? {
+-                ...nativeProps,
+-                internal_analyticTag: analyticTag,
+-              }
++              ...nativeProps,
++              internal_analyticTag: analyticTag,
++            }
+             : nativeProps;
+         return (
+           <TextAncestor.Consumer>
+@@ -223,11 +223,11 @@ const BaseImage = (props: ImagePropsType, forwardedRef) => {
+   );
+ };
+ 
+-let Image = React.forwardRef<
++let Image = React.forwardRef <
+   ImagePropsType,
+-  | React.ElementRef<typeof TextInlineImageNativeComponent>
+-  | React.ElementRef<typeof ImageViewNativeComponent>,
+->(BaseImage);
++  | React.ElementRef < typeof TextInlineImageNativeComponent >
++  | React.ElementRef < typeof ImageViewNativeComponent >,
++> (BaseImage);
+ 
+ if (ImageInjection.unstable_createImageComponent != null) {
+   Image = ImageInjection.unstable_createImageComponent(Image);
+@@ -308,6 +308,12 @@ Image.queryCache = queryCache;
+  * comment and run Flow. */
+ Image.resolveAssetSource = resolveAssetSource;
+ 
++/**
++ * Switch to `deprecated-react-native-prop-types` for compatibility with future
++ * releases. This is deprecated and will be removed in the future.
++ */
++Image.propTypes = require('deprecated-react-native-prop-types').ImagePropTypes;
++
+ const styles = StyleSheet.create({
+   base: {
+     overflow: 'hidden',
+diff --git a/node_modules/react-native/Libraries/Image/Image.ios.js b/node_modules/react-native/Libraries/Image/Image.ios.js
+index 7b5d0c0..a891175 100644
+--- a/node_modules/react-native/Libraries/Image/Image.ios.js
++++ b/node_modules/react-native/Libraries/Image/Image.ios.js
+@@ -16,13 +16,13 @@ import ImageAnalyticsTagContext from './ImageAnalyticsTagContext';
+ import flattenStyle from '../StyleSheet/flattenStyle';
+ import resolveAssetSource from './resolveAssetSource';
+ 
+-import type {ImageProps as ImagePropsType} from './ImageProps';
++import type { ImageProps as ImagePropsType } from './ImageProps';
+ 
+-import type {ImageStyleProp} from '../StyleSheet/StyleSheet';
++import type { ImageStyleProp } from '../StyleSheet/StyleSheet';
+ import NativeImageLoaderIOS from './NativeImageLoaderIOS';
+ 
+ import ImageViewNativeComponent from './ImageViewNativeComponent';
+-import type {RootTag} from 'react-native/Libraries/Types/RootTagTypes';
++import type { RootTag } from 'react-native/Libraries/Types/RootTagTypes';
+ 
+ function getSize(
+   uri: string,
+@@ -33,15 +33,15 @@ function getSize(
+     .then(([width, height]) => success(width, height))
+     .catch(
+       failure ||
+-        function () {
+-          console.warn('Failed to get size for image ' + uri);
+-        },
++      function () {
++        console.warn('Failed to get size for image ' + uri);
++      },
+     );
+ }
+ 
+ function getSizeWithHeaders(
+   uri: string,
+-  headers: {[string]: string, ...},
++  headers: { [string]: string, ...},
+   success: (width: number, height: number) => void,
+   failure?: (error: any) => void,
+ ): any {
+@@ -51,9 +51,9 @@ function getSizeWithHeaders(
+     })
+     .catch(
+       failure ||
+-        function () {
+-          console.warn('Failed to get size for image: ' + uri);
+-        },
++      function () {
++        console.warn('Failed to get size for image: ' + uri);
++      },
+     );
+ }
+ 
+@@ -82,17 +82,17 @@ function prefetch(url: string): any {
+ 
+ async function queryCache(
+   urls: Array<string>,
+-): Promise<{[string]: 'memory' | 'disk' | 'disk/memory', ...}> {
++): Promise<{ [string]: 'memory' | 'disk' | 'disk/memory', ...}> {
+   return await NativeImageLoaderIOS.queryCache(urls);
+ }
+ 
+ export type ImageComponentStatics = $ReadOnly<{|
+   getSize: typeof getSize,
+-  getSizeWithHeaders: typeof getSizeWithHeaders,
+-  prefetch: typeof prefetch,
+-  prefetchWithMetadata: typeof prefetchWithMetadata,
+-  queryCache: typeof queryCache,
+-  resolveAssetSource: typeof resolveAssetSource,
++    getSizeWithHeaders: typeof getSizeWithHeaders,
++      prefetch: typeof prefetch,
++        prefetchWithMetadata: typeof prefetchWithMetadata,
++          queryCache: typeof queryCache,
++            resolveAssetSource: typeof resolveAssetSource,
+ |}>;
+ 
+ /**
+@@ -117,8 +117,8 @@ const BaseImage = (props: ImagePropsType, forwardedRef) => {
+     style = flattenStyle([styles.base, props.style]) || {};
+     sources = source;
+   } else {
+-    const {width, height, uri} = source;
+-    style = flattenStyle([{width, height}, styles.base, props.style]) || {};
++    const { width, height, uri } = source;
++    style = flattenStyle([{ width, height }, styles.base, props.style]) || {};
+     sources = [source];
+ 
+     if (uri === '') {
+@@ -160,89 +160,95 @@ const BaseImage = (props: ImagePropsType, forwardedRef) => {
+   );
+ };
+ 
+-const ImageForwardRef = React.forwardRef<
++const ImageForwardRef = React.forwardRef <
+   ImagePropsType,
+   React.ElementRef<typeof ImageViewNativeComponent>,
+ >(BaseImage);
+ 
+-let Image = ImageForwardRef;
+-if (ImageInjection.unstable_createImageComponent != null) {
+-  Image = ImageInjection.unstable_createImageComponent(Image);
++    let Image = ImageForwardRef;
++    if (ImageInjection.unstable_createImageComponent != null) {
++      Image = ImageInjection.unstable_createImageComponent(Image);
+ }
+ 
+-Image.displayName = 'Image';
+-
+-/**
+- * Retrieve the width and height (in pixels) of an image prior to displaying it.
+- *
+- * See https://reactnative.dev/docs/image#getsize
+- */
+-/* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
+- * suppresses an error found when Flow v0.89 was deployed. To see the error,
+- * delete this comment and run Flow. */
+-Image.getSize = getSize;
+-
+-/**
+- * Retrieve the width and height (in pixels) of an image prior to displaying it
+- * with the ability to provide the headers for the request.
+- *
+- * See https://reactnative.dev/docs/image#getsizewithheaders
+- */
+-/* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
+- * suppresses an error found when Flow v0.89 was deployed. To see the error,
+- * delete this comment and run Flow. */
+-Image.getSizeWithHeaders = getSizeWithHeaders;
+-
+-/**
+- * Prefetches a remote image for later use by downloading it to the disk
+- * cache.
+- *
+- * See https://reactnative.dev/docs/image#prefetch
+- */
+-/* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
+- * suppresses an error found when Flow v0.89 was deployed. To see the error,
+- * delete this comment and run Flow. */
+-Image.prefetch = prefetch;
+-
+-/**
+- * Prefetches a remote image for later use by downloading it to the disk
+- * cache, and adds metadata for queryRootName and rootTag.
+- *
+- * See https://reactnative.dev/docs/image#prefetch
+- */
+-/* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
+- * suppresses an error found when Flow v0.89 was deployed. To see the error,
+- * delete this comment and run Flow. */
+-Image.prefetchWithMetadata = prefetchWithMetadata;
+-
+-/**
+- * Performs cache interrogation.
+- *
+- *  See https://reactnative.dev/docs/image#querycache
+- */
+-/* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
+- * suppresses an error found when Flow v0.89 was deployed. To see the error,
+- * delete this comment and run Flow. */
+-Image.queryCache = queryCache;
+-
+-/**
+- * Resolves an asset reference into an object.
+- *
+- * See https://reactnative.dev/docs/image#resolveassetsource
+- */
+-/* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
+- * suppresses an error found when Flow v0.89 was deployed. To see the error,
+- * delete this comment and run Flow. */
+-Image.resolveAssetSource = resolveAssetSource;
+-
+-const styles = StyleSheet.create({
+-  base: {
+-    overflow: 'hidden',
++    Image.displayName = 'Image';
++
++    /**
++     * Retrieve the width and height (in pixels) of an image prior to displaying it.
++     *
++     * See https://reactnative.dev/docs/image#getsize
++     */
++    /* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
++     * suppresses an error found when Flow v0.89 was deployed. To see the error,
++     * delete this comment and run Flow. */
++    Image.getSize = getSize;
++
++    /**
++     * Retrieve the width and height (in pixels) of an image prior to displaying it
++     * with the ability to provide the headers for the request.
++     *
++     * See https://reactnative.dev/docs/image#getsizewithheaders
++     */
++    /* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
++     * suppresses an error found when Flow v0.89 was deployed. To see the error,
++     * delete this comment and run Flow. */
++    Image.getSizeWithHeaders = getSizeWithHeaders;
++
++    /**
++     * Prefetches a remote image for later use by downloading it to the disk
++     * cache.
++     *
++     * See https://reactnative.dev/docs/image#prefetch
++     */
++    /* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
++     * suppresses an error found when Flow v0.89 was deployed. To see the error,
++     * delete this comment and run Flow. */
++    Image.prefetch = prefetch;
++
++    /**
++     * Prefetches a remote image for later use by downloading it to the disk
++     * cache, and adds metadata for queryRootName and rootTag.
++     *
++     * See https://reactnative.dev/docs/image#prefetch
++     */
++    /* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
++     * suppresses an error found when Flow v0.89 was deployed. To see the error,
++     * delete this comment and run Flow. */
++    Image.prefetchWithMetadata = prefetchWithMetadata;
++
++    /**
++     * Performs cache interrogation.
++     *
++     *  See https://reactnative.dev/docs/image#querycache
++     */
++    /* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
++     * suppresses an error found when Flow v0.89 was deployed. To see the error,
++     * delete this comment and run Flow. */
++    Image.queryCache = queryCache;
++
++    /**
++     * Resolves an asset reference into an object.
++     *
++     * See https://reactnative.dev/docs/image#resolveassetsource
++     */
++    /* $FlowFixMe[prop-missing] (>=0.89.0 site=react_native_ios_fb) This comment
++     * suppresses an error found when Flow v0.89 was deployed. To see the error,
++     * delete this comment and run Flow. */
++    Image.resolveAssetSource = resolveAssetSource;
++
++    /**
++     * Switch to `deprecated-react-native-prop-types` for compatibility with future
++     * releases. This is deprecated and will be removed in the future.
++     */
++    Image.propTypes = require('deprecated-react-native-prop-types').ImagePropTypes;
++
++    const styles = StyleSheet.create({
++      base: {
++      overflow: 'hidden',
+   },
+ });
+ 
+-module.exports = ((Image: any): React.AbstractComponent<
+-  ImagePropsType,
+-  React.ElementRef<typeof ImageViewNativeComponent>,
++    module.exports = ((Image: any): React.AbstractComponent<
++      ImagePropsType,
++    React.ElementRef<typeof ImageViewNativeComponent>,
+ > &
+-  ImageComponentStatics);
++      ImageComponentStatics);
+diff --git a/node_modules/react-native/Libraries/Text/Text.js b/node_modules/react-native/Libraries/Text/Text.js
+index 57b6a2e..2be864c 100644
+--- a/node_modules/react-native/Libraries/Text/Text.js
++++ b/node_modules/react-native/Libraries/Text/Text.js
+@@ -8,7 +8,7 @@
+  * @format
+  */
+ 
+-import type {PressEvent} from '../Types/CoreEventTypes';
++import type { PressEvent } from '../Types/CoreEventTypes';
+ 
+ import Platform from '../Utilities/Platform';
+ import * as PressabilityDebug from '../Pressability/PressabilityDebug';
+@@ -16,10 +16,10 @@ import usePressability from '../Pressability/usePressability';
+ import StyleSheet from '../StyleSheet/StyleSheet';
+ import processColor from '../StyleSheet/processColor';
+ import TextAncestor from './TextAncestor';
+-import {NativeText, NativeVirtualText} from './TextNativeComponent';
+-import {type TextProps} from './TextProps';
++import { NativeText, NativeVirtualText } from './TextNativeComponent';
++import { type TextProps } from './TextProps';
+ import * as React from 'react';
+-import {useContext, useMemo, useState} from 'react';
++import { useContext, useMemo, useState } from 'react';
+ 
+ /**
+  * Text is the fundamental component for displaying text.
+@@ -57,7 +57,7 @@ const Text: React.AbstractComponent<
+       : props.accessibilityState?.disabled;
+   const _accessibilityState =
+     _disabled !== props.accessibilityState?.disabled
+-      ? {...props.accessibilityState, disabled: _disabled}
++      ? { ...props.accessibilityState, disabled: _disabled }
+       : props.accessibilityState;
+ 
+   const isPressable =
+@@ -71,22 +71,22 @@ const Text: React.AbstractComponent<
+     () =>
+       initialized
+         ? {
+-            disabled: !isPressable,
+-            pressRectOffset: pressRetentionOffset,
+-            onLongPress,
+-            onPress,
+-            onPressIn(event: PressEvent) {
+-              setHighlighted(!suppressHighlighting);
+-              onPressIn?.(event);
+-            },
+-            onPressOut(event: PressEvent) {
+-              setHighlighted(false);
+-              onPressOut?.(event);
+-            },
+-            onResponderTerminationRequest_DEPRECATED:
+-              onResponderTerminationRequest,
+-            onStartShouldSetResponder_DEPRECATED: onStartShouldSetResponder,
+-          }
++          disabled: !isPressable,
++          pressRectOffset: pressRetentionOffset,
++          onLongPress,
++          onPress,
++          onPressIn(event: PressEvent) {
++            setHighlighted(!suppressHighlighting);
++            onPressIn?.(event);
++          },
++          onPressOut(event: PressEvent) {
++            setHighlighted(false);
++            onPressOut?.(event);
++          },
++          onResponderTerminationRequest_DEPRECATED:
++            onResponderTerminationRequest,
++          onStartShouldSetResponder_DEPRECATED: onStartShouldSetResponder,
++        }
+         : null,
+     [
+       initialized,
+@@ -108,35 +108,35 @@ const Text: React.AbstractComponent<
+       eventHandlers == null
+         ? null
+         : {
+-            onResponderGrant(event: PressEvent) {
+-              eventHandlers.onResponderGrant(event);
+-              if (onResponderGrant != null) {
+-                onResponderGrant(event);
+-              }
+-            },
+-            onResponderMove(event: PressEvent) {
+-              eventHandlers.onResponderMove(event);
+-              if (onResponderMove != null) {
+-                onResponderMove(event);
+-              }
+-            },
+-            onResponderRelease(event: PressEvent) {
+-              eventHandlers.onResponderRelease(event);
+-              if (onResponderRelease != null) {
+-                onResponderRelease(event);
+-              }
+-            },
+-            onResponderTerminate(event: PressEvent) {
+-              eventHandlers.onResponderTerminate(event);
+-              if (onResponderTerminate != null) {
+-                onResponderTerminate(event);
+-              }
+-            },
+-            onClick: eventHandlers.onClick,
+-            onResponderTerminationRequest:
+-              eventHandlers.onResponderTerminationRequest,
+-            onStartShouldSetResponder: eventHandlers.onStartShouldSetResponder,
++          onResponderGrant(event: PressEvent) {
++            eventHandlers.onResponderGrant(event);
++            if (onResponderGrant != null) {
++              onResponderGrant(event);
++            }
++          },
++          onResponderMove(event: PressEvent) {
++            eventHandlers.onResponderMove(event);
++            if (onResponderMove != null) {
++              onResponderMove(event);
++            }
++          },
++          onResponderRelease(event: PressEvent) {
++            eventHandlers.onResponderRelease(event);
++            if (onResponderRelease != null) {
++              onResponderRelease(event);
++            }
+           },
++          onResponderTerminate(event: PressEvent) {
++            eventHandlers.onResponderTerminate(event);
++            if (onResponderTerminate != null) {
++              onResponderTerminate(event);
++            }
++          },
++          onClick: eventHandlers.onClick,
++          onResponderTerminationRequest:
++            eventHandlers.onResponderTerminationRequest,
++          onStartShouldSetResponder: eventHandlers.onStartShouldSetResponder,
++        },
+     [
+       eventHandlers,
+       onResponderGrant,
+@@ -161,6 +161,69 @@ const Text: React.AbstractComponent<
+     }
+   }
+ 
++  // === PATCH: 全局字体注入逻辑 ===
++const styleArray = [].concat(style || []);
++let fontWeight = null;
++let hasColor = false;
++const boldWeights = ["bold", "600", "700", "800", "900"];
++for (const s of styleArray) {
++  if (!fontWeight && s && s.fontWeight) {
++    fontWeight = s.fontWeight;
++  }
++  if (s && s.color !== undefined) {
++    hasColor = true;
++  }
++}
++let fontFamily;
++const overrideStyle = {};
++const isThaiLanguage = global?.LANGUAGE === "TH";
++const isVietnameseLanguage = global?.LANGUAGE === "VN";
++
++// Check if Android already has Roboto (default system font)
++const hasAndroidRoboto = Platform.OS === 'android' && 
++  (Platform.constants.fontScale !== undefined || Platform.Version >= 16);
++
++if (isThaiLanguage) {
++  const isBold = boldWeights.includes(fontWeight);
++
++  if (Platform.OS === 'ios') {
++    fontFamily = 'NotoSansThai-Regular';
++  } else {
++    fontFamily = isBold ? 'NotoSansThai-Bold' : 'NotoSansThai-Regular';
++
++    // ⚠️ Android 必须清除 fontWeight，否则不会加载自定义 bold 字体
++    if (isBold) {
++      overrideStyle.fontWeight = 'normal';
++    }
++  }
++
++  overrideStyle.fontFamily = fontFamily;
++} else if (isVietnameseLanguage && !(Platform.OS === 'android' && hasAndroidRoboto)) {
++  const isBold = boldWeights.includes(fontWeight);
++  
++  if (Platform.OS === 'ios') {
++    fontFamily = 'Roboto-Regular';
++  } else {
++    fontFamily = isBold ? 'Roboto-Bold' : 'Roboto-Regular';
++    
++    // ⚠️ Android 必须清除 fontWeight，否则不会加载自定义 bold 字体
++    if (isBold) {
++      overrideStyle.fontWeight = 'normal';
++    }
++  }
++  
++  overrideStyle.fontFamily = fontFamily;
++}
++
++if (!hasColor) {
++  overrideStyle.color = '#000000';
++}
++
++// ✅ patch 优先，用户 style 放后面（低优先级）
++const mergedStyle = [styleArray, overrideStyle].flat();
++// === PATCH END ===
++
++
+   let numberOfLines = restProps.numberOfLines;
+   if (numberOfLines != null && !(numberOfLines >= 0)) {
+     console.error(
+@@ -184,7 +247,7 @@ const Text: React.AbstractComponent<
+       isPressable={isPressable}
+       numberOfLines={numberOfLines}
+       selectionColor={selectionColor}
+-      style={style}
++      style={mergedStyle}
+       ref={forwardedRef}
+     />
+   ) : (
+@@ -200,7 +263,7 @@ const Text: React.AbstractComponent<
+         isHighlighted={isHighlighted}
+         numberOfLines={numberOfLines}
+         selectionColor={selectionColor}
+-        style={style}
++        style={mergedStyle}
+         ref={forwardedRef}
+       />
+     </TextAncestor.Provider>
+@@ -209,6 +272,12 @@ const Text: React.AbstractComponent<
+ 
+ Text.displayName = 'Text';
+ 
++/**
++ * Switch to `deprecated-react-native-prop-types` for compatibility with future
++ * releases. This is deprecated and will be removed in the future.
++ */
++Text.propTypes = require('deprecated-react-native-prop-types').TextPropTypes;
++
+ /**
+  * Returns false until the first time `newValue` is true, after which this will
+  * always return true. This is necessary to lazily initialize `Pressability` so
+diff --git a/node_modules/react-native/index.js b/node_modules/react-native/index.js
+index d59ba34..1da61b2 100644
+--- a/node_modules/react-native/index.js
++++ b/node_modules/react-native/index.js
+@@ -87,16 +87,16 @@ import typeof Vibration from './Libraries/Vibration/Vibration';
+ import typeof YellowBox from './Libraries/YellowBox/YellowBoxDeprecated';
+ 
+ // Plugins
+-import typeof {DynamicColorIOS} from './Libraries/StyleSheet/PlatformColorValueTypesIOS';
++import typeof { DynamicColorIOS } from './Libraries/StyleSheet/PlatformColorValueTypesIOS';
+ import typeof NativeModules from './Libraries/BatchedBridge/NativeModules';
+ import typeof Platform from './Libraries/Utilities/Platform';
+-import typeof {PlatformColor} from './Libraries/StyleSheet/PlatformColorValueTypes';
++import typeof { PlatformColor } from './Libraries/StyleSheet/PlatformColorValueTypes';
+ import typeof processColor from './Libraries/StyleSheet/processColor';
+ import typeof RCTDeviceEventEmitter from './Libraries/EventEmitter/RCTDeviceEventEmitter';
+ import typeof RCTNativeAppEventEmitter from './Libraries/EventEmitter/RCTNativeAppEventEmitter';
+-import typeof {RootTagContext} from './Libraries/ReactNative/RootTag';
++import typeof { RootTagContext } from './Libraries/ReactNative/RootTag';
+ 
+-import type {HostComponent as _HostComponentInternal} from './Libraries/Renderer/shims/ReactNativeTypes';
++import type { HostComponent as _HostComponentInternal } from './Libraries/Renderer/shims/ReactNativeTypes';
+ 
+ export type HostComponent<T> = _HostComponentInternal<T>;
+ 
+@@ -120,8 +120,8 @@ module.exports = {
+     warnOnce(
+       'DatePickerIOS-merged',
+       'DatePickerIOS has been merged with DatePickerAndroid and will be removed in a future release. ' +
+-        "It can now be installed and imported from '@react-native-community/datetimepicker' instead of 'react-native'. " +
+-        'See https://github.com/react-native-datetimepicker/datetimepicker',
++      "It can now be installed and imported from '@react-native-community/datetimepicker' instead of 'react-native'. " +
++      'See https://github.com/react-native-datetimepicker/datetimepicker',
+     );
+     return require('./Libraries/Components/DatePicker/DatePickerIOS');
+   },
+@@ -149,8 +149,8 @@ module.exports = {
+     warnOnce(
+       'maskedviewios-moved',
+       'MaskedViewIOS has been extracted from react-native core and will be removed in a future release. ' +
+-        "It can now be installed and imported from '@react-native-masked-view/masked-view' instead of 'react-native'. " +
+-        'See https://github.com/react-native-masked-view/masked-view',
++      "It can now be installed and imported from '@react-native-masked-view/masked-view' instead of 'react-native'. " +
++      'See https://github.com/react-native-masked-view/masked-view',
+     );
+     return require('./Libraries/Components/MaskedView/MaskedViewIOS');
+   },
+@@ -165,8 +165,8 @@ module.exports = {
+     warnOnce(
+       'progress-bar-android-moved',
+       'ProgressBarAndroid has been extracted from react-native core and will be removed in a future release. ' +
+-        "It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. " +
+-        'See https://github.com/react-native-progress-view/progress-bar-android',
++      "It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. " +
++      'See https://github.com/react-native-progress-view/progress-bar-android',
+     );
+     return require('./Libraries/Components/ProgressBarAndroid/ProgressBarAndroid');
+   },
+@@ -175,8 +175,8 @@ module.exports = {
+     warnOnce(
+       'progress-view-ios-moved',
+       'ProgressViewIOS has been extracted from react-native core and will be removed in a future release. ' +
+-        "It can now be installed and imported from '@react-native-community/progress-view' instead of 'react-native'. " +
+-        'See https://github.com/react-native-progress-view/progress-view',
++      "It can now be installed and imported from '@react-native-community/progress-view' instead of 'react-native'. " +
++      'See https://github.com/react-native-progress-view/progress-view',
+     );
+     return require('./Libraries/Components/ProgressViewIOS/ProgressViewIOS');
+   },
+@@ -196,8 +196,8 @@ module.exports = {
+     warnOnce(
+       'slider-moved',
+       'Slider has been extracted from react-native core and will be removed in a future release. ' +
+-        "It can now be installed and imported from '@react-native-community/slider' instead of 'react-native'. " +
+-        'See https://github.com/callstack/react-native-slider',
++      "It can now be installed and imported from '@react-native-community/slider' instead of 'react-native'. " +
++      'See https://github.com/callstack/react-native-slider',
+     );
+     return require('./Libraries/Components/Slider/Slider');
+   },
+@@ -262,8 +262,8 @@ module.exports = {
+     warnOnce(
+       'async-storage-moved',
+       'AsyncStorage has been extracted from react-native core and will be removed in a future release. ' +
+-        "It can now be installed and imported from '@react-native-async-storage/async-storage' instead of 'react-native'. " +
+-        'See https://github.com/react-native-async-storage/async-storage',
++      "It can now be installed and imported from '@react-native-async-storage/async-storage' instead of 'react-native'. " +
++      'See https://github.com/react-native-async-storage/async-storage',
+     );
+     return require('./Libraries/Storage/AsyncStorage');
+   },
+@@ -274,8 +274,8 @@ module.exports = {
+     warnOnce(
+       'clipboard-moved',
+       'Clipboard has been extracted from react-native core and will be removed in a future release. ' +
+-        "It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. " +
+-        'See https://github.com/react-native-clipboard/clipboard',
++      "It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. " +
++      'See https://github.com/react-native-clipboard/clipboard',
+     );
+     return require('./Libraries/Components/Clipboard/Clipboard');
+   },
+@@ -301,9 +301,9 @@ module.exports = {
+     warnOnce(
+       'imagePickerIOS-moved',
+       'ImagePickerIOS has been extracted from react-native core and will be removed in a future release. ' +
+-        "Please upgrade to use either '@react-native-community/react-native-image-picker' or 'expo-image-picker'. " +
+-        "If you cannot upgrade to a different library, please install the deprecated '@react-native-community/image-picker-ios' package. " +
+-        'See https://github.com/rnc-archive/react-native-image-picker-ios',
++      "Please upgrade to use either '@react-native-community/react-native-image-picker' or 'expo-image-picker'. " +
++      "If you cannot upgrade to a different library, please install the deprecated '@react-native-community/image-picker-ios' package. " +
++      'See https://github.com/rnc-archive/react-native-image-picker-ios',
+     );
+     return require('./Libraries/Image/ImagePickerIOS');
+   },
+@@ -345,8 +345,8 @@ module.exports = {
+     warnOnce(
+       'pushNotificationIOS-moved',
+       'PushNotificationIOS has been extracted from react-native core and will be removed in a future release. ' +
+-        "It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. " +
+-        'See https://github.com/react-native-push-notification-ios/push-notification-ios',
++      "It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. " +
++      'See https://github.com/react-native-push-notification-ios/push-notification-ios',
+     );
+     return require('./Libraries/PushNotificationIOS/PushNotificationIOS');
+   },
+@@ -435,32 +435,16 @@ module.exports = {
+   },
+   // Deprecated Prop Types
+   get ColorPropType(): $FlowFixMe {
+-    invariant(
+-      false,
+-      'ColorPropType has been removed from React Native. Migrate to ' +
+-        "ColorPropType exported from 'deprecated-react-native-prop-types'.",
+-    );
++    return require("deprecated-react-native-prop-types").ColorPropType
+   },
+   get EdgeInsetsPropType(): $FlowFixMe {
+-    invariant(
+-      false,
+-      'EdgeInsetsPropType has been removed from React Native. Migrate to ' +
+-        "EdgeInsetsPropType exported from 'deprecated-react-native-prop-types'.",
+-    );
++    return require("deprecated-react-native-prop-types").EdgeInsetsPropType
+   },
+   get PointPropType(): $FlowFixMe {
+-    invariant(
+-      false,
+-      'PointPropType has been removed from React Native. Migrate to ' +
+-        "PointPropType exported from 'deprecated-react-native-prop-types'.",
+-    );
++    return require("deprecated-react-native-prop-types").PointPropType
+   },
+   get ViewPropTypes(): $FlowFixMe {
+-    invariant(
+-      false,
+-      'ViewPropTypes has been removed from React Native. Migrate to ' +
+-        "ViewPropTypes exported from 'deprecated-react-native-prop-types'.",
+-    );
++    return require("deprecated-react-native-prop-types").ViewPropTypes
+   },
+ };
+ 
+@@ -475,8 +459,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'ART has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-community/art' instead of 'react-native'. " +
+-          'See https://github.com/react-native-art/art',
++        "It can now be installed and imported from '@react-native-community/art' instead of 'react-native'. " +
++        'See https://github.com/react-native-art/art',
+       );
+     },
+   });
+@@ -491,8 +475,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'ListView has been removed from React Native. ' +
+-          'See https://fb.me/nolistview for more information or use ' +
+-          '`deprecated-react-native-listview`.',
++        'See https://fb.me/nolistview for more information or use ' +
++        '`deprecated-react-native-listview`.',
+       );
+     },
+   });
+@@ -507,8 +491,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'SwipeableListView has been removed from React Native. ' +
+-          'See https://fb.me/nolistview for more information or use ' +
+-          '`deprecated-react-native-swipeable-listview`.',
++        'See https://fb.me/nolistview for more information or use ' +
++        '`deprecated-react-native-swipeable-listview`.',
+       );
+     },
+   });
+@@ -523,8 +507,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'WebView has been removed from React Native. ' +
+-          "It can now be installed and imported from 'react-native-webview' instead of 'react-native'. " +
+-          'See https://github.com/react-native-webview/react-native-webview',
++        "It can now be installed and imported from 'react-native-webview' instead of 'react-native'. " +
++        'See https://github.com/react-native-webview/react-native-webview',
+       );
+     },
+   });
+@@ -539,8 +523,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'NetInfo has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-community/netinfo' instead of 'react-native'. " +
+-          'See https://github.com/react-native-netinfo/react-native-netinfo',
++        "It can now be installed and imported from '@react-native-community/netinfo' instead of 'react-native'. " +
++        'See https://github.com/react-native-netinfo/react-native-netinfo',
+       );
+     },
+   });
+@@ -555,8 +539,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'CameraRoll has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-community/cameraroll' instead of 'react-native'. " +
+-          'See https://github.com/react-native-cameraroll/react-native-cameraroll',
++        "It can now be installed and imported from '@react-native-community/cameraroll' instead of 'react-native'. " +
++        'See https://github.com/react-native-cameraroll/react-native-cameraroll',
+       );
+     },
+   });
+@@ -571,9 +555,9 @@ if (__DEV__) {
+       invariant(
+         false,
+         'ImageStore has been removed from React Native. ' +
+-          'To get a base64-encoded string from a local image use either of the following third-party libraries:' +
+-          "* expo-file-system: `readAsStringAsync(filepath, 'base64')`" +
+-          "* react-native-fs: `readFile(filepath, 'base64')`",
++        'To get a base64-encoded string from a local image use either of the following third-party libraries:' +
++        "* expo-file-system: `readAsStringAsync(filepath, 'base64')`" +
++        "* react-native-fs: `readFile(filepath, 'base64')`",
+       );
+     },
+   });
+@@ -588,8 +572,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'ImageEditor has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-community/image-editor' instead of 'react-native'. " +
+-          'See https://github.com/callstack/react-native-image-editor',
++        "It can now be installed and imported from '@react-native-community/image-editor' instead of 'react-native'. " +
++        'See https://github.com/callstack/react-native-image-editor',
+       );
+     },
+   });
+@@ -604,8 +588,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'TimePickerAndroid has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-community/datetimepicker' instead of 'react-native'. " +
+-          'See https://github.com/react-native-datetimepicker/datetimepicker',
++        "It can now be installed and imported from '@react-native-community/datetimepicker' instead of 'react-native'. " +
++        'See https://github.com/react-native-datetimepicker/datetimepicker',
+       );
+     },
+   });
+@@ -620,8 +604,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'ToolbarAndroid has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-community/toolbar-android' instead of 'react-native'. " +
+-          'See https://github.com/react-native-toolbar-android/toolbar-android',
++        "It can now be installed and imported from '@react-native-community/toolbar-android' instead of 'react-native'. " +
++        'See https://github.com/react-native-toolbar-android/toolbar-android',
+       );
+     },
+   });
+@@ -636,8 +620,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'ViewPagerAndroid has been removed from React Native. ' +
+-          "It can now be installed and imported from 'react-native-pager-view' instead of 'react-native'. " +
+-          'See https://github.com/callstack/react-native-pager-view',
++        "It can now be installed and imported from 'react-native-pager-view' instead of 'react-native'. " +
++        'See https://github.com/callstack/react-native-pager-view',
+       );
+     },
+   });
+@@ -652,8 +636,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'CheckBox has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-community/checkbox' instead of 'react-native'. " +
+-          'See https://github.com/react-native-checkbox/react-native-checkbox',
++        "It can now be installed and imported from '@react-native-community/checkbox' instead of 'react-native'. " +
++        'See https://github.com/react-native-checkbox/react-native-checkbox',
+       );
+     },
+   });
+@@ -668,8 +652,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'SegmentedControlIOS has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-community/segmented-checkbox' instead of 'react-native'." +
+-          'See https://github.com/react-native-segmented-control/segmented-control',
++        "It can now be installed and imported from '@react-native-community/segmented-checkbox' instead of 'react-native'." +
++        'See https://github.com/react-native-segmented-control/segmented-control',
+       );
+     },
+   });
+@@ -684,8 +668,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'StatusBarIOS has been removed from React Native. ' +
+-          'Has been merged with StatusBar. ' +
+-          'See https://reactnative.dev/docs/statusbar',
++        'Has been merged with StatusBar. ' +
++        'See https://reactnative.dev/docs/statusbar',
+       );
+     },
+   });
+@@ -700,8 +684,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'PickerIOS has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
+-          'See https://github.com/react-native-picker/picker',
++        "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
++        'See https://github.com/react-native-picker/picker',
+       );
+     },
+   });
+@@ -716,8 +700,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'Picker has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
+-          'See https://github.com/react-native-picker/picker',
++        "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
++        'See https://github.com/react-native-picker/picker',
+       );
+     },
+   });
+@@ -731,8 +715,8 @@ if (__DEV__) {
+       invariant(
+         false,
+         'DatePickerAndroid has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-community/datetimepicker' instead of 'react-native'. " +
+-          'See https://github.com/react-native-datetimepicker/datetimepicker',
++        "It can now be installed and imported from '@react-native-community/datetimepicker' instead of 'react-native'. " +
++        'See https://github.com/react-native-datetimepicker/datetimepicker',
+       );
+     },
+   });
+diff --git a/node_modules/react-native/scripts/.packager.env b/node_modules/react-native/scripts/.packager.env
+new file mode 100644
+index 0000000..361f5fb
+--- /dev/null
++++ b/node_modules/react-native/scripts/.packager.env
+@@ -0,0 +1 @@
++export RCT_METRO_PORT=8081
+diff --git a/node_modules/react-native/third-party-podspecs/boost.podspec b/node_modules/react-native/third-party-podspecs/boost.podspec
+index 2f1fcc4..022c361 100644
+--- a/node_modules/react-native/third-party-podspecs/boost.podspec
++++ b/node_modules/react-native/third-party-podspecs/boost.podspec
+@@ -10,7 +10,8 @@ Pod::Spec.new do |spec|
+   spec.homepage = 'http://www.boost.org'
+   spec.summary = 'Boost provides free peer-reviewed portable C++ source libraries.'
+   spec.authors = 'Rene Rivera'
+-  spec.source = { :http => 'https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2',
++#   spec.source = { :http => 'https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2',
++  spec.source = { :http => 'https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2',
+                   :sha256 => 'f0397ba6e982c4450f27bf32a2a83292aba035b827a5623a14636ea583318c41' }
+ 
+   # Pinning to the same version as React.podspec.

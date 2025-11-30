@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "baseUrl": "./",
+        "paths": {
+            "$Deposits/*": ["central-payment/Deposit/M3/*"],
+            "$Withdrawal/*": ["central-payment/Main/App/M23/Withdrawal/*"],
+            "$CentralPayment/*": ["central-payment/*"],
+            "$StyleSheets/*": ["central-payment/StyleSheet/App/M3/F1/*"],
+            "@StyleSheets/*": ["central-payment/StyleSheet/App/M3/F1/*"],
+            "$Components/*": ["./src/components/*"],
+            "$Rreducers/*": ["./src/reducers/*"],
+            "$LIB/*": ["./src/lib/*"],
+            "@/*": ["./src/*"],
+            "$Toasts": ["./src/components/Toasts"],
+            "$locales/*": ["./src/locales/*"]
+        },
+        "jsx": "react",
+        "target": "esnext",
+        "module": "esnext",
+        "allowSyntheticDefaultImports": true
+    },
+    "exclude": ["node_modules", "dist"]
+}

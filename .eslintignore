@@ -1,0 +1,17 @@
+.next
+node_modules
+package.json
+package-lock.json
+.eslintrc.js
+.eslintignore
+next.config.js
+ios
+android
+patches
+*.json
+*.scss
+*.less
+*.css
+
+
+Central-Payment/

@@ -1,0 +1,43 @@
+{
+    "printWidth": 100,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "quoteProps": "preserve",
+    "jsxSingleQuote": false,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "arrowParens": "always",
+    "endOfLine": "lf",
+    "jsxBracketSameLine": false,
+    "embeddedLanguageFormatting": "auto",
+    "htmlWhitespaceSensitivity": "css",
+    "insertPragma": false,
+    "proseWrap": "preserve",
+    "requirePragma": false,
+    "vueIndentScriptAndStyle": false,
+    "parser": "babel",
+    "jsxParens": false,
+    "overrides": [
+        {
+            "files": [
+                "*.js",
+                "*.jsx",
+                "*.ts",
+                "*.tsx",
+                "*.json",
+                "*.css",
+                "*.scss",
+                "*.less",
+                "*.vue"
+            ],
+            "options": {
+                "tabWidth": 4
+            }
+        }
+    ],
+    "importFormatting": "preserve-spacing",
+    "jsxBooleanValue": "preserve"
+}

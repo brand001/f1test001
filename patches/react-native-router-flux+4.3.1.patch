@@ -1,0 +1,19 @@
+diff --git a/node_modules/react-native-router-flux/src/Router.js b/node_modules/react-native-router-flux/src/Router.js
+index 6f595e4..2fd4a14 100644
+--- a/node_modules/react-native-router-flux/src/Router.js
++++ b/node_modules/react-native-router-flux/src/Router.js
+@@ -27,12 +27,12 @@ class App extends React.Component {
+     // If the app was "woken up" by an external route.
+     Linking.getInitialURL().then(url => this.parseDeepURL(url));
+     // Add an event listener for further deep linking.
+-    Linking.addEventListener('url', this.handleDeepURL);
++    // Linking.addEventListener('url', this.handleDeepURL);
+   }
+ 
+   componentWillUnmount() {
+     BackHandler.removeEventListener('hardwareBackPress', this.props.backAndroidHandler || this.onBackPress);
+-    Linking.removeEventListener('url', this.handleDeepURL);
++    // Linking.removeEventListener('url', this.handleDeepURL);
+   }
+ 
+   onBackPress = () => this.props.navigationStore.pop();

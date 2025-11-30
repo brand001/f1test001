@@ -1,0 +1,412 @@
+---
+description: F1-APP-ST React Native tech stack and dependencies guide
+globs: 
+alwaysApply: true
+---
+# F1-APP-ST Tech Stack & Dependencies Guide
+
+## Project Overview
+
+**F1-APP-ST** is a React Native mobile application built with:
+- **React Native 0.70.9** - Cross-platform mobile development
+- **React 18.1.0** - UI library with concurrent features
+- **Redux ecosystem** - State management
+- **Multiple payment gateways** - Central payment systems
+- **Multi-language support** - CN/TH/VN localization
+- **Real-time features** - Live chat, notifications, SignalR
+
+## Core Framework Stack
+
+### **React Native 0.70.9**
+- **Framework**: Cross-platform mobile development
+- **Architecture**: Uses React Navigation for navigation
+- **Best Practice**: Compatible with iOS and Android, uses CodePush for OTA updates
+- **Note**: This is an older but stable version, avoid using latest React Native features
+
+### **React 18.1.0**
+- **UI Library**: Core React library with concurrent features
+- **Features**: Suspense, automatic batching, server components
+- **Best Practice**: Use React 18 patterns, but be mindful of React Native compatibility
+
+### **Redux Ecosystem**
+```json
+{
+  "redux": "4.2.1",
+  "react-redux": "8.0.2",
+  "redux-thunk": "2.4.2",
+  "redux-persist": "6.0.0",
+  "redux-devtools-extension": "2.13.9"
+}
+```
+
+**Best Practices**:
+- Use redux-thunk for async actions
+- Implement redux-persist for state persistence
+- Use proper action creators and reducers
+- Leverage redux-devtools for debugging
+
+```javascript
+// Redux store setup pattern
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { persistStore, persistReducer } from 'redux-persist';
+
+const store = createStore(
+  persistReducer(persistConfig, rootReducer),
+  applyMiddleware(thunk)
+);
+```
+
+## Navigation System
+
+### **React Navigation 6.x**
+```json
+{
+  "@react-navigation/native": "6.1.17",
+  "@react-navigation/native-stack": "6.9.26",
+  "@react-navigation/stack": "6.3.29",
+  "react-navigation": "4.4.4"
+}
+```
+
+**Best Practices**:
+- Use React Navigation 6 for new screens
+- Maintain compatibility with legacy React Navigation 4
+- Use native-stack for better performance
+- Implement proper screen transitions
+
+```javascript
+// Navigation pattern
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
+
+function AppNavigator() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={HomeScreen} />
+    </Stack.Navigator>
+  );
+}
+```
+
+## UI Component Libraries
+
+### **Ant Design React Native 5.0.4**
+```json
+{
+  "@ant-design/react-native": "5.0.4",
+  "@ant-design/icons-react-native": "2.3.2"
+}
+```
+
+**Best Practices**:
+- Use Ant Design components for consistent UI
+- Customize themes through Ant Design's theming system
+- Combine with custom components when needed
+
+### **React Native Elements 0.19.1**
+- **Usage**: Additional UI components
+- **Best Practice**: Use for components not available in Ant Design
+
+## Device & Platform Features
+
+### **Device Information & Permissions**
+```json
+{
+  "react-native-device-info": "9.0.2",
+  "react-native-permissions": "4.0.4",
+  "@react-native-community/netinfo": "11.3.1"
+}
+```
+
+### **Camera & Media**
+```json
+{
+  "react-native-camera": "4.2.1",
+  "react-native-vision-camera": "3.6.4",
+  "react-native-image-picker": "4.10.3",
+  "@react-native-camera-roll/camera-roll": "5.2.4"
+}
+```
+
+**Best Practices**:
+- Handle permissions properly before accessing camera
+- Use react-native-vision-camera for newer implementations
+- Fallback to react-native-camera for compatibility
+
+### **Biometric Authentication**
+```json
+{
+  "react-native-fingerprint-scanner": "6.0.0",
+  "@nevis-security/nevis-mobile-authentication-sdk-react": "git+https://github.com/benjicxc/rn-nevis.git"
+}
+```
+
+## Real-time & Communication
+
+### **Live Chat System**
+```json
+{
+  "@amityco/react-native-cli-chat-ui-kit": "file:amityco-react-native-cli-chat-ui-kit-0.3.5.tgz"
+}
+```
+
+### **Real-time Communication**
+```json
+{
+  "react-native-signalr": "1.0.6",
+  "socket.io-client": "4.6.1",
+  "@gpsgate/react-native-eventsource": "git+https://github.com/gpsgate/react-native-eventsource.git"
+}
+```
+
+**Best Practices**:
+- Use SignalR for real-time betting updates
+- Implement proper connection handling and reconnection logic
+- Handle offline scenarios gracefully
+
+## Payment Integration
+
+### **Central Payment Systems**
+```json
+{
+  "central-payment": "git+https://github.com/a0921313520/Central-Payment.git#61ac7bebc156a73a9c3c1572a85b6806420af733",
+  "central-payment-m1": "git+https://github.com/a0921313520/central-payment-m1#0669bff800bf5af4915ed9a80c8104b0036ae812",
+  "central-payment-m23": "git+https://github.com/a0921313520/central-payment-m23#ec2de9ae99fea203acbb09c467c65874020aa06d"
+}
+```
+
+**Best Practices**:
+- Use specific commit hashes for payment modules
+- Implement proper error handling for payment failures
+- Follow PCI compliance guidelines
+
+## Analytics & Monitoring
+
+### **Firebase Analytics**
+```json
+{
+  "@react-native-firebase/app": "17.5.0",
+  "@react-native-firebase/analytics": "17.5.0",
+  "@react-native-firebase/messaging": "17.5.0"
+}
+```
+
+### **Error Tracking**
+```json
+{
+  "@sentry/react-native": "5.3.1"
+}
+```
+
+### **User Analytics**
+```json
+{
+  "@piwikpro/react-native-piwik-pro-sdk": "1.0.1"
+}
+```
+
+**Best Practices**:
+- Track user interactions and errors
+- Implement proper event logging
+- Use Firebase for push notifications
+
+## Security & Fraud Prevention
+
+### **Fraud Prevention**
+```json
+{
+  "@seontechnologies/seon-react-native-mobile-wrapper": "2.0.0"
+}
+```
+
+**Best Practices**:
+- Implement device fingerprinting
+- Monitor for suspicious activities
+- Use proper encryption for sensitive data
+
+## Storage & Data Management
+
+### **Local Storage**
+```json
+{
+  "@react-native-async-storage/async-storage": "1.22.3",
+  "react-native-storage": "1.0.1"
+}
+```
+
+### **Network & API**
+```json
+{
+  "rn-fetch-blob": "0.12.0",
+  "fetch-with-proxy": "1.1.0"
+}
+```
+
+**Best Practices**:
+- Use AsyncStorage for simple key-value storage
+- Implement proper error handling for network requests
+- Use redux-persist for complex state persistence
+
+## Utility Libraries
+
+### **Date & Time**
+```json
+{
+  "moment": "2.29.4"
+}
+```
+
+### **Cryptography**
+```json
+{
+  "crypto-js": "3.3.0"
+}
+```
+
+### **Data Manipulation**
+```json
+{
+  "lodash": "4.17.21",
+  "decimal.js": "10.4.2",
+  "immutability-helper": "3.1.1"
+}
+```
+
+**Best Practices**:
+- Use Moment.js for date manipulation (consider migrating to date-fns for better performance)
+- Use Decimal.js for precise financial calculations
+- Use immutability-helper for state updates
+
+## UI Enhancement Libraries
+
+### **Animations**
+```json
+{
+  "react-native-reanimated": "2.14.4",
+  "react-native-animatable": "1.3.3"
+}
+```
+
+### **Charts & Visualization**
+```json
+{
+  "react-native-tcharts": "1.8.0",
+  "react-native-svg": "14.1.0"
+}
+```
+
+### **Carousel & Sliders**
+```json
+{
+  "react-native-snap-carousel": "3.9.1",
+  "react-native-banner-carousel": "1.0.3"
+}
+```
+
+**Best Practices**:
+- Use react-native-reanimated for performant animations
+- Implement proper loading states for charts
+- Optimize carousel performance for large datasets
+
+## Development Tools
+
+### **Code Quality**
+```json
+{
+  "eslint": "8.57.0",
+  "prettier": "3.5.3",
+  "babel-plugin-transform-remove-console": "6.9.4"
+}
+```
+
+### **Testing**
+```json
+{
+  "jest": "28.1.1",
+  "react-test-renderer": "16.14.0"
+}
+```
+
+### **Build Tools**
+```json
+{
+  "patch-package": "6.4.7",
+  "metro-react-native-babel-preset": "0.71.1"
+}
+```
+
+**Best Practices**:
+- Use ESLint for code quality
+- Apply patches with patch-package for third-party issues
+- Remove console logs in production builds
+
+## Important Project Constraints
+
+### **React Native Version Limitations**
+- **Version**: 0.70.9 (older but stable)
+- **Limitation**: Cannot use latest React Native features
+- **Best Practice**: Check React Native compatibility before using new libraries
+
+### **Component Architecture**
+- **Legacy**: Old modules use Class components (don't modify unless necessary)
+- **New Development**: Use Functional components with hooks
+- **Best Practice**: Maintain consistency within feature modules
+
+### **Browser Compatibility**
+- **Target**: Mainstream desktop/mobile browsers from last 2 years
+- **Note**: While this is a React Native app, WebView components should support modern browsers
+
+### **Static Export Consideration**
+- **Note**: Project mentions `next export` usage, ensure no SSR dependencies in web components
+
+## Code Quality Standards
+
+### **Import Organization**
+```javascript
+// External libraries first
+import React from 'react';
+import { View, Text } from 'react-native';
+import { connect } from 'react-redux';
+
+// Internal utilities
+import { Api } from '../actions/Api';
+import { CommonStyles } from '../lib/utils/CommonStyles';
+
+
+### **Error Handling Patterns**
+```javascript
+// API call error handling
+try {
+  const response = await Api.getData();
+  // Handle success
+} catch (error) {
+  console.error('API Error:', error);
+  // Handle error appropriately
+}
+```
+
+### **Component Patterns**
+```javascript
+// Functional component with hooks
+import React, { useState, useEffect } from 'react';
+
+const MyComponent = ({ navigation, route }) => {
+  const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    // Component logic
+  }, []);
+  
+  return (
+    <View>
+      {/* Component JSX */}
+    </View>
+  );
+};
+
+export default MyComponent;
+```
+
+Follow [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) for proper rule formatting and structure.

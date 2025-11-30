@@ -1,0 +1,23 @@
+diff --git a/node_modules/@react-native-community/netinfo/android/src/main/java/com/reactnativecommunity/netinfo/NetInfoUtils.java b/node_modules/@react-native-community/netinfo/android/src/main/java/com/reactnativecommunity/netinfo/NetInfoUtils.java
+index 6b9cda3..bd33da1 100644
+--- a/node_modules/@react-native-community/netinfo/android/src/main/java/com/reactnativecommunity/netinfo/NetInfoUtils.java
++++ b/node_modules/@react-native-community/netinfo/android/src/main/java/com/reactnativecommunity/netinfo/NetInfoUtils.java
+@@ -40,11 +40,12 @@ public class NetInfoUtils {
+     @SuppressLint("UnspecifiedRegisterReceiverFlag")
+     public static void compatRegisterReceiver(
+             Context context, BroadcastReceiver receiver, IntentFilter filter, boolean exported) {
+-        if (Build.VERSION.SDK_INT >= 34 && context.getApplicationInfo().targetSdkVersion >= 34) {
+-            context.registerReceiver(
+-                    receiver, filter, exported ? Context.RECEIVER_EXPORTED : Context.RECEIVER_NOT_EXPORTED);
+-        } else {
+-            context.registerReceiver(receiver, filter);
+-        }
++        // if (Build.VERSION.SDK_INT >= 34 && context.getApplicationInfo().targetSdkVersion >= 34) {
++        //     context.registerReceiver(
++        //             receiver, filter, exported ? Context.RECEIVER_EXPORTED : Context.RECEIVER_NOT_EXPORTED);
++        // } else {
++        //     context.registerReceiver(receiver, filter);
++        // }
++        context.registerReceiver(receiver, filter);
+     }
+ }

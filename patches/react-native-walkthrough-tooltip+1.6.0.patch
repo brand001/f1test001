@@ -1,0 +1,83 @@
+diff --git a/node_modules/react-native-walkthrough-tooltip/src/tooltip.js b/node_modules/react-native-walkthrough-tooltip/src/tooltip.js
+index 3098692..64c25ea 100644
+--- a/node_modules/react-native-walkthrough-tooltip/src/tooltip.js
++++ b/node_modules/react-native-walkthrough-tooltip/src/tooltip.js
+@@ -6,6 +6,7 @@ import {
+   Modal,
+   TouchableWithoutFeedback,
+   View,
++  StyleSheet
+ } from 'react-native';
+ import rfcIsEqual from 'react-fast-compare';
+ import {
+@@ -22,9 +23,9 @@ import {
+ } from './geom';
+ import styleGenerator from './styles';
+ import TooltipChildrenContext from './tooltip-children.context';
+-
++const { width, height } = Dimensions.get("window");
+ export { TooltipChildrenContext };
+-
++import { RootSiblingPortal } from 'react-native-root-siblings';
+ const DEFAULT_DISPLAY_INSETS = {
+   top: 24,
+   bottom: 24,
+@@ -424,8 +425,9 @@ class Tooltip extends Component {
+       }
+     };
+ 
++    let Tag = this.props.useReactNativeModal ? TouchableWithoutFeedback : View
+     return (
+-      <TouchableWithoutFeedback
++      <Tag
+         onPress={onPressBackground}
+         accessible={this.props.accessible}
+       >
+@@ -450,7 +452,7 @@ class Tooltip extends Component {
+             ? this.renderChildInTooltip()
+             : null}
+         </View>
+-      </TouchableWithoutFeedback>
++      </Tag>
+     );
+   };
+ 
+@@ -477,7 +479,23 @@ class Tooltip extends Component {
+           >
+             {this.renderContentForTooltip()}
+           </ModalComponent>
+-        ) : null}
++        ) :
++          (
++            showTooltip && <RootSiblingPortal>
++              <View
++                style={{
++                  ...StyleSheet.absoluteFillObject,
++                  width: width,
++                  height: height,
++                  //backgroundColor: 'rgba(0, 0, 0, .4)'
++                }}
++                pointerEvents="box-none"
++              >
++                {this.renderContentForTooltip()}
++              </View>
++            </RootSiblingPortal>
++          )
++        }
+ 
+         {/* This renders the child element in place in the parent's layout */}
+         {hasChildren ? (
+@@ -490,9 +508,11 @@ class Tooltip extends Component {
+           </View>
+         ) : null}
+ 
+-        {!useReactNativeModal && showTooltip
++        {useReactNativeModal &&(
++          !useReactNativeModal && showTooltip
+           ? this.renderContentForTooltip()
+-          : null}
++          : null
++        )}
+       </React.Fragment>
+     );
+   }

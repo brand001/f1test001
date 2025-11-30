@@ -1,0 +1,16 @@
+{
+    "versionCode": "1.5.8.4",
+    "CodePushAppNameIOS": "F1M1-P5-ios",
+    "CodePushAppNameAndroid": "F1-M1-P5-android",
+    "androidForceVersion": 1000,
+    "iosForceVersion": 1000,
+    "sharedCommit": "",
+    "ApkIpaName": "f1scapp",
+    "CodePushDescription": "update",
+    "ios_code_push_v": [
+        "1.1.5"
+    ],
+    "android_code_push_v": [
+        "1.2.1"
+    ]
+}

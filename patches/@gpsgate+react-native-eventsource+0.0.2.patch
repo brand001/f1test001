@@ -1,0 +1,59 @@
+diff --git a/node_modules/@gpsgate/react-native-eventsource/README.md b/node_modules/@gpsgate/react-native-eventsource/README.md
+index c5231a9..6937243 100644
+--- a/node_modules/@gpsgate/react-native-eventsource/README.md
++++ b/node_modules/@gpsgate/react-native-eventsource/README.md
+@@ -27,3 +27,8 @@ eventSource.onerror = err => {
+   console.error(err);
+ };
+ ```
++### patch-package-command
++```
++npx patch-package @gpsgate/react-native-eventsource --exclude "build[^\.].+|.+\.iml|package\.json"
++```
++
+diff --git a/node_modules/@gpsgate/react-native-eventsource/android/build.gradle b/node_modules/@gpsgate/react-native-eventsource/android/build.gradle
+index 2f2fcd3..4518c4c 100644
+--- a/node_modules/@gpsgate/react-native-eventsource/android/build.gradle
++++ b/node_modules/@gpsgate/react-native-eventsource/android/build.gradle
+@@ -8,11 +8,16 @@ android {
+     compileSdkVersion safeExtGet("compileSdkVersion", 28)
+ 
+     defaultConfig {
+-        minSdkVersion safeExtGet("minSdkVersion", 16)
++        minSdkVersion safeExtGet("minSdkVersion", 21)
+         targetSdkVersion safeExtGet("targetSdkVersion", 28)
+         versionCode 1
+         versionName "1.0"
+     }
++
++    compileOptions {
++        sourceCompatibility JavaVersion.VERSION_1_8
++        targetCompatibility JavaVersion.VERSION_1_8
++    }
+ }
+ 
+ dependencies {
+diff --git a/node_modules/@gpsgate/react-native-eventsource/android/src/main/java/org/kaazing/net/sse/impl/SseEventStream.java b/node_modules/@gpsgate/react-native-eventsource/android/src/main/java/org/kaazing/net/sse/impl/SseEventStream.java
+index d08b743..e273a4c 100755
+--- a/node_modules/@gpsgate/react-native-eventsource/android/src/main/java/org/kaazing/net/sse/impl/SseEventStream.java
++++ b/node_modules/@gpsgate/react-native-eventsource/android/src/main/java/org/kaazing/net/sse/impl/SseEventStream.java
+@@ -119,6 +119,7 @@ public class SseEventStream {
+         try {
+             HttpURI uri = new HttpURI(this.sseLocation);
+             sseSource = new HttpRequest(Method.GET, uri, true);
++            sseSource.setHeader("Accept","text/event-stream"); //要加這個header 否則bti會返回404
+             sseHandler.processOpen(sseSource);
+ 
+             if (!reconnected.get()) {
+diff --git a/node_modules/@gpsgate/react-native-eventsource/src/EventSource.js b/node_modules/@gpsgate/react-native-eventsource/src/EventSource.js
+index 5280382..604cf34 100644
+--- a/node_modules/@gpsgate/react-native-eventsource/src/EventSource.js
++++ b/node_modules/@gpsgate/react-native-eventsource/src/EventSource.js
+@@ -57,6 +57,7 @@ class EventSource extends EventSourceBase {
+         var event = new EventSourceEvent(ev.type, {
+           data: ev.message || ev.data
+         });
++        //console.log('===DeviceEventEmitter eventsourceEvent',ev.id,JSON.parse(JSON.stringify(event)));
+         if( ev.type === 'message' && this.onmessage ) this.onmessage(event);
+         this.dispatchEvent(event);
+       }),

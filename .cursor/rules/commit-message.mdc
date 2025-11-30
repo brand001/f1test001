@@ -1,0 +1,191 @@
+---
+alwaysApply: true
+---
+
+# Commit-message 規範
+
+## 基本格式
+遵循 **Conventional Commits** 格式，使用英文撰寫
+
+```
+<type>: <description>
+[optional JIRA-ID: 在前面加上 JIRA 單號，例如 CXPC-1234:]
+[optional body]
+[optional footer(s)]
+```
+
+## JIRA 單號規則
+- **獲取方式**：從分支名稱前面獲取，例如：
+  - 分支名稱：`CXPC-1830_Albert` → JIRA 單號：`CXPC-1830`
+- **使用規則**：如果分支名稱前面沒有 JIRA 單號，則 commit message 不需要加上 JIRA 單號
+
+## Type 類型
+| Type     | 說明                             | 範例                                    |
+|----|----|-----|
+| feat     | 新功能                           | `feat(deposit): add QR code payment` |
+| fix      | 修復 bug                         | `fix(withdrawal): resolve amount validation` |
+| docs     | 文檔變更                         | `docs: update API documentation` |
+| style    | 樣式         | `style: fix ESLint warnings` |
+| refactor | 重構（既不是新功能也不是修復）   | `refactor(shared): optimize render props pattern` |
+| perf     | 性能優化                         | `perf(web): improve loading speed` |
+| test     | 添加或修改測試                   | `test(deposit): add unit tests` |
+| chore    | 構建過程或輔助工具的變動         | `chore: update dependencies` |
+| ci       | CI/CD 相關變更                   | `ci: add GitHub Actions workflow` |
+
+
+## 提交訊息範例
+
+### 功能開發（有 JIRA 單號）
+```
+CXPC-1830: feat(deposit): add crypto payment method
+
+- Implement Bitcoin and Ethereum payment options
+- Add QR code generation for wallet addresses
+- Update payment method selection UI
+```
+
+### 功能開發（無 JIRA 單號）
+```
+feat: add crypto payment method
+
+- Implement Bitcoin and Ethereum payment options
+- Add QR code generation for wallet addresses
+- Update payment method selection UI
+```
+
+### 修復問題（有 JIRA 單號）
+```
+CXPC-1831: fix: resolve amount validation error
+
+- Fix decimal point validation in amount input
+- Handle edge case for minimum withdrawal amount
+- Update error message display
+```
+
+### 修復問題（無 JIRA 單號）
+```
+fix: resolve amount validation error
+
+- Fix decimal point validation in amount input
+- Handle edge case for minimum withdrawal amount
+- Update error message display
+```
+
+### 重構代碼（有 JIRA 單號）
+```
+CXPC-1834: refactor(shared): optimize render props pattern
+
+- Improve component reusability across platforms
+- Reduce prop drilling in nested components
+- Update TypeScript interfaces
+```
+
+### 重構代碼（無 JIRA 單號）
+```
+refactor(shared): optimize render props pattern
+
+- Improve component reusability across platforms
+- Reduce prop drilling in nested components
+- Update TypeScript interfaces
+```
+
+## 最佳實踐
+1. **使用英文**撰寫提交訊息
+2. **簡潔明確**的描述變更內容
+3. **主動語態**，例如 "add" 而不是 "added"
+4. **第一行不超過 50 字符**
+5. **描述放在 body 部分**
+6. **一個提交只做一件事**# Commit-message 規範
+
+## 基本格式
+遵循 **Conventional Commits** 格式，使用英文撰寫
+
+```
+<type>: <description>
+[optional JIRA-ID: 在前面加上 JIRA 單號，例如 CXPC-1234:]
+[optional body]
+[optional footer(s)]
+```
+
+## JIRA 單號規則
+- **獲取方式**：從分支名稱前面獲取，例如：
+  - 分支名稱：`CXPC-1830_Albert` → JIRA 單號：`CXPC-1830`
+- **使用規則**：如果分支名稱前面沒有 JIRA 單號，則 commit message 不需要加上 JIRA 單號
+
+## Type 類型
+| Type     | 說明                             | 範例                                    |
+|----|----|-----|
+| feat     | 新功能                           | `feat(deposit): add QR code payment` |
+| fix      | 修復 bug                         | `fix(withdrawal): resolve amount validation` |
+| docs     | 文檔變更                         | `docs: update API documentation` |
+| style    | 樣式         | `style: fix ESLint warnings` |
+| refactor | 重構（既不是新功能也不是修復）   | `refactor(shared): optimize render props pattern` |
+| perf     | 性能優化                         | `perf(web): improve loading speed` |
+| test     | 添加或修改測試                   | `test(deposit): add unit tests` |
+| chore    | 構建過程或輔助工具的變動         | `chore: update dependencies` |
+| ci       | CI/CD 相關變更                   | `ci: add GitHub Actions workflow` |
+
+
+## 提交訊息範例
+
+### 功能開發（有 JIRA 單號）
+```
+CXPC-1830: feat(deposit): add crypto payment method
+
+- Implement Bitcoin and Ethereum payment options
+- Add QR code generation for wallet addresses
+- Update payment method selection UI
+```
+
+### 功能開發（無 JIRA 單號）
+```
+feat: add crypto payment method
+
+- Implement Bitcoin and Ethereum payment options
+- Add QR code generation for wallet addresses
+- Update payment method selection UI
+```
+
+### 修復問題（有 JIRA 單號）
+```
+CXPC-1831: fix: resolve amount validation error
+
+- Fix decimal point validation in amount input
+- Handle edge case for minimum withdrawal amount
+- Update error message display
+```
+
+### 修復問題（無 JIRA 單號）
+```
+fix: resolve amount validation error
+
+- Fix decimal point validation in amount input
+- Handle edge case for minimum withdrawal amount
+- Update error message display
+```
+
+### 重構代碼（有 JIRA 單號）
+```
+CXPC-1834: refactor(shared): optimize render props pattern
+
+- Improve component reusability across platforms
+- Reduce prop drilling in nested components
+- Update TypeScript interfaces
+```
+
+### 重構代碼（無 JIRA 單號）
+```
+refactor(shared): optimize render props pattern
+
+- Improve component reusability across platforms
+- Reduce prop drilling in nested components
+- Update TypeScript interfaces
+```
+
+## 最佳實踐
+1. **使用英文**撰寫提交訊息
+2. **簡潔明確**的描述變更內容
+3. **主動語態**，例如 "add" 而不是 "added"
+4. **第一行不超過 50 字符**
+5. **描述放在 body 部分**
+6. **一個提交只做一件事**

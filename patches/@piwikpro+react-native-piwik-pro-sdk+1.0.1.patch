@@ -1,0 +1,307 @@
+diff --git a/node_modules/@piwikpro/react-native-piwik-pro-sdk/.DS_Store b/node_modules/@piwikpro/react-native-piwik-pro-sdk/.DS_Store
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/build.gradle b/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/build.gradle
+index ca3f242..94689f8 100644
+--- a/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/build.gradle
++++ b/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/build.gradle
+@@ -127,5 +127,5 @@ dependencies {
+   // noinspection GradleDynamicVersion
+   api 'com.facebook.react:react-native:+'
+   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+-  implementation 'pro.piwik:sdk-framework-android:1.1.2'
++  implementation 'pro.piwik:sdk-framework-android:1.1.10'
+ }
+diff --git a/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/gradlew b/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/gradlew
+index 4f906e0..744e882 100755
+--- a/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/gradlew
++++ b/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/gradlew
+@@ -72,7 +72,7 @@ case "`uname`" in
+   Darwin* )
+     darwin=true
+     ;;
+-  MINGW* )
++  MSYS* | MINGW* )
+     msys=true
+     ;;
+   NONSTOP* )
+diff --git a/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/src/main/java/com/reactnativepiwikprosdk/PiwikProSdkModule.kt b/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/src/main/java/com/reactnativepiwikprosdk/PiwikProSdkModule.kt
+index 5320401..21f2ca1 100644
+--- a/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/src/main/java/com/reactnativepiwikprosdk/PiwikProSdkModule.kt
++++ b/node_modules/@piwikpro/react-native-piwik-pro-sdk/android/src/main/java/com/reactnativepiwikprosdk/PiwikProSdkModule.kt
+@@ -23,26 +23,36 @@ class PiwikProSdkModule(reactContext: ReactApplicationContext) :
+     return "PiwikProSdk"
+   }
+ 
+-  @ReactMethod
+-  fun init(apiUrl: String, siteId: String, version: String, promise: Promise) {
+-    if (this.tracker != null) {
+-      promise.reject(Error("Piwik Pro SDK has been already initialized"))
+-      return
+-    }
+ 
+-    try {
+-      val tracker = Piwik.getInstance(this.reactApplicationContext).newTracker(
+-        TrackerConfig.createDefault(
+-          apiUrl, siteId
+-        )
+-      )
++@ReactMethod
++fun init(apiUrl: String, siteId: String, version: String, promise: Promise) {
++  try {
++    // 如果已存在 tracker，先 dispatch 再清空（等于 destroy）
++    tracker?.dispatch()
++    tracker = null
++
++    val tracker = Piwik.getInstance(this.reactApplicationContext).newTracker(
++      TrackerConfig.createDefault(apiUrl, siteId)
++    )
++    tracker.trafficSourceName = TRAFFIC_SOURCE_NAME
++    tracker.trafficSourceVersion = version
++    this.tracker = tracker
+ 
+-      tracker.trafficSourceName = TRAFFIC_SOURCE_NAME
+-      tracker.trafficSourceVersion = version
+-      this.tracker = tracker
++    promise.resolve(null)
++  } catch (exception: Exception) {
++    promise.reject(exception)
++  }
++}
++
++
++    @ReactMethod
++  fun destroy(promise: Promise) {
++    try {
++      tracker?.dispatch()
++      tracker = null
+       promise.resolve(null)
+-    } catch (exception: Exception) {
+-      promise.reject(exception)
++    } catch (e: Exception) {
++      promise.reject("destroy_failed", e.message, e)
+     }
+   }
+ 
+@@ -54,7 +64,7 @@ class PiwikProSdkModule(reactContext: ReactApplicationContext) :
+       val screen = trackHelper.screen(path).title(options?.getString("title"))
+ 
+       applyOptionalParameters(trackHelper, options)
+-      applyScreenCustomVariables(screen, options?.getMap("screenCustomVariables"))
++      applyScreenCustomVariables(trackHelper, options?.getMap("screenCustomVariables"))
+       screen.with(tracker)
+ 
+       promise.resolve(null)
+@@ -102,7 +112,7 @@ class PiwikProSdkModule(reactContext: ReactApplicationContext) :
+       val trackHelper = TrackHelper.track()
+ 
+       applyOptionalParameters(trackHelper, options)
+-      trackHelper.exception().description(description).fatal(isFatal).with(getTracker())
++      trackHelper.exception().description(description).with(getTracker())
+ 
+       promise.resolve(null)
+     } catch (exception: Exception) {
+@@ -122,8 +132,7 @@ class PiwikProSdkModule(reactContext: ReactApplicationContext) :
+       val trackHelper = TrackHelper.track()
+ 
+       applyOptionalParameters(trackHelper, options)
+-      trackHelper.socialInteraction(interaction, network).target(options?.getString("target"))
+-        .with(tracker)
++      trackHelper.socialInteraction(interaction, network).with(tracker)
+ 
+       promise.resolve(null)
+     } catch (exception: Exception) {
+@@ -161,7 +170,7 @@ class PiwikProSdkModule(reactContext: ReactApplicationContext) :
+       val trackHelper = TrackHelper.track()
+ 
+       applyOptionalParameters(trackHelper, options)
+-      trackHelper.outlink(URL(url)).with(getTracker())
++      trackHelper.outlink(url).with(getTracker())
+       promise.resolve(null)
+     } catch (exception: Exception) {
+       promise.reject(exception)
+@@ -220,7 +229,7 @@ class PiwikProSdkModule(reactContext: ReactApplicationContext) :
+   }
+ 
+   @ReactMethod
+-  fun trackGoal(goal: Int, options: ReadableMap?, promise: Promise) {
++  fun trackGoal(goal: String, options: ReadableMap?, promise: Promise) {
+     try {
+       val trackHelper = TrackHelper.track()
+ 
+@@ -255,12 +264,10 @@ class PiwikProSdkModule(reactContext: ReactApplicationContext) :
+   }
+ 
+   @ReactMethod
+-  fun trackCampaign(url: String, options: ReadableMap?, promise: Promise) {
++  fun trackCampaign(url: String, promise: Promise) {
+     try {
+       val trackHelper = TrackHelper.track()
+-
+-      applyOptionalParameters(trackHelper, options)
+-      trackHelper.campaign(URL(url)).with(getTracker())
++      trackHelper.campaign(URL(url))
+       promise.resolve(null)
+     } catch (exception: Exception) {
+       promise.reject(exception)
+@@ -583,7 +590,7 @@ class PiwikProSdkModule(reactContext: ReactApplicationContext) :
+   }
+ 
+   private fun applyScreenCustomVariables(
+-    screen: TrackHelper.Screen,
++    trackHelper: TrackHelper,
+     customVariables: ReadableMap?
+   ) {
+     customVariables?.entryIterator?.forEach {
+@@ -592,7 +599,7 @@ class PiwikProSdkModule(reactContext: ReactApplicationContext) :
+       val name = valuesMap.getString("name")
+       val value = valuesMap.getString("value")
+ 
+-      screen.variable(key, name, value)
++      trackHelper.variable(key, name, value)
+     }
+   }
+ 
+diff --git a/node_modules/@piwikpro/react-native-piwik-pro-sdk/ios/PiwikProSdk.m b/node_modules/@piwikpro/react-native-piwik-pro-sdk/ios/PiwikProSdk.m
+index 7d8a37f..5592403 100644
+--- a/node_modules/@piwikpro/react-native-piwik-pro-sdk/ios/PiwikProSdk.m
++++ b/node_modules/@piwikpro/react-native-piwik-pro-sdk/ios/PiwikProSdk.m
+@@ -1,6 +1,8 @@
+ #import "PiwikProSdk.h"
+ #import <PiwikPROSDK/PiwikPROSDK.h>
+ 
++static PiwikTracker *trackerInstance = nil; 
++
+ @implementation PiwikProSdk
+ 
+ RCT_EXPORT_MODULE()
+@@ -12,22 +14,27 @@ @implementation PiwikProSdk
+                  withResolver:(RCTPromiseResolveBlock)resolve
+                  withRejecter:(RCTPromiseRejectBlock)reject)
+ {
+-    if ([PiwikTracker sharedInstance] != nil) {
+-        reject(@"already_initialized", @"Piwik Pro SDK has been already initialized", nil);
+-        return;
+-    }
+-    
+     dispatch_async(dispatch_get_main_queue(), ^{
+-        PiwikTracker* tracker = [PiwikTracker sharedInstanceWithSiteID:siteID baseURL:[NSURL URLWithString:baseURL]];
+-        NSBundle* bundle = [NSBundle mainBundle];
++        @try {
++            if (trackerInstance != nil) {
++                [trackerInstance dispatch];
++                trackerInstance = nil;
++            }
+         
+-        tracker.appName = [bundle bundleIdentifier];
+-        tracker.sourceTrafficName = @"react_native";
+-        tracker.sourceTrafficVesion = version;
+-        resolve(nil);
++            trackerInstance = [PiwikTracker sharedInstanceWithSiteID:siteID baseURL:[NSURL URLWithString:baseURL]];
++            NSBundle* bundle = [NSBundle mainBundle];
++            trackerInstance.appName = [bundle bundleIdentifier];
++            trackerInstance.sourceTrafficName = @"react_native";
++            trackerInstance.sourceTrafficVesion = version;
++
++            resolve(nil);
++        } @catch (NSException *exception) {
++            reject(@"init_failed", exception.reason, nil);
++        }
+     });
+ }
+ 
++
+ RCT_REMAP_METHOD(trackScreen,
+                  trackScreenWithPath:(nonnull NSString*)path
+                  withOptions:(NSDictionary*)options
+@@ -116,6 +123,31 @@ @implementation PiwikProSdk
+     }
+ }
+ 
++RCT_REMAP_METHOD(destroy,
++                 destroyWithResolver:(RCTPromiseResolveBlock)resolve
++                 withRejecter:(RCTPromiseRejectBlock)reject)
++{
++    dispatch_async(dispatch_get_main_queue(), ^{
++        @try {
++            if (trackerInstance != nil) {
++                [trackerInstance dispatch]; // flush any pending events
++                trackerInstance = nil;
++            }
++
++            // 强制清除 sharedInstance 单例缓存
++            @try {
++                [PiwikTracker setValue:nil forKey:@"sharedInstance"];
++            } @catch (NSException *e) {
++                NSLog(@"[PiwikProSdk] Failed to reset sharedInstance: %@", e.reason);
++            }
++
++            resolve(nil);
++        } @catch (NSException *exception) {
++            reject(@"destroy_failed", exception.reason, nil);
++        }
++    });
++}
++
+ RCT_REMAP_METHOD(trackDownload,
+                  trackDownloadWithUrl:(nonnull NSString*)url
+                  withOptions:(NSDictionary*)options
+diff --git a/node_modules/@piwikpro/react-native-piwik-pro-sdk/lib/commonjs/index.js b/node_modules/@piwikpro/react-native-piwik-pro-sdk/lib/commonjs/index.js
+index 8b8d2e6..bcce48b 100644
+--- a/node_modules/@piwikpro/react-native-piwik-pro-sdk/lib/commonjs/index.js
++++ b/node_modules/@piwikpro/react-native-piwik-pro-sdk/lib/commonjs/index.js
+@@ -23,6 +23,7 @@ const PiwikProNativeSdk = _reactNative.NativeModules.PiwikProSdk ? _reactNative.
+ });
+ 
+ async function init(apiUrl, siteId) {
++  alert(8888)
+   return await PiwikProNativeSdk.init(apiUrl, siteId, _version.version);
+ }
+ 
+diff --git a/node_modules/@piwikpro/react-native-piwik-pro-sdk/lib/module/index.js b/node_modules/@piwikpro/react-native-piwik-pro-sdk/lib/module/index.js
+index 4c83fc6..d923323 100644
+--- a/node_modules/@piwikpro/react-native-piwik-pro-sdk/lib/module/index.js
++++ b/node_modules/@piwikpro/react-native-piwik-pro-sdk/lib/module/index.js
+@@ -16,6 +16,11 @@ async function init(apiUrl, siteId) {
+   return await PiwikProNativeSdk.init(apiUrl, siteId, version);
+ }
+ 
++async function destroy() {
++  return await PiwikProNativeSdk.destroy();
++}
++
++
+ async function trackScreen(path, options) {
+   validateCustomKeyValues(options);
+   return await PiwikProNativeSdk.trackScreen(path, options);
+@@ -197,6 +202,7 @@ function validateCustomKeyValues(options) {
+ 
+ const PiwikProSdk = {
+   init,
++  destroy,
+   trackScreen,
+   trackCustomEvent,
+   trackException,
+diff --git a/node_modules/@piwikpro/react-native-piwik-pro-sdk/src/index.tsx b/node_modules/@piwikpro/react-native-piwik-pro-sdk/src/index.tsx
+index c8271e2..dc0075e 100644
+--- a/node_modules/@piwikpro/react-native-piwik-pro-sdk/src/index.tsx
++++ b/node_modules/@piwikpro/react-native-piwik-pro-sdk/src/index.tsx
+@@ -27,6 +27,10 @@ async function init(apiUrl: string, siteId: string): Promise<void> {
+   return await PiwikProNativeSdk.init(apiUrl, siteId, version);
+ }
+ 
++async function destroy(): Promise<void> {
++  return await PiwikProNativeSdk.destroy();
++}
++
+ async function trackScreen(
+   path: string,
+   options?: TrackScreenOptions
+@@ -265,6 +269,7 @@ function validateCustomKeyValues(options: any) {
+ 
+ const PiwikProSdk: PiwikProSdkType = {
+   init,
++  destroy,
+   trackScreen,
+   trackCustomEvent,
+   trackException,

@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-common-date-picker/src/datePicker/DatePickerList.js b/node_modules/react-native-common-date-picker/src/datePicker/DatePickerList.js
+index bb40abb..162e197 100644
+--- a/node_modules/react-native-common-date-picker/src/datePicker/DatePickerList.js
++++ b/node_modules/react-native-common-date-picker/src/datePicker/DatePickerList.js
+@@ -221,7 +221,7 @@ class DatePickerList extends Component {
+         const {keyType, yearSuffix, monthSuffix, daySuffix} = this.props;
+         const suffix = keyType === DATE_KEY_TYPE.YEAR ? yearSuffix : (keyType === DATE_KEY_TYPE.MONTH ? monthSuffix : daySuffix);
+         return (<View style={[styles.datePickerListItemView, {height: this.state.rowHeight}]}>
+-            <Text style={this._itemTextStyle(index)}>{item.date}{!item.date || suffix}</Text>
++            <Text style={this._itemTextStyle(index)}>{item.date}{!item.date || suffix}{item.date && (keyType == 'year'? ' ': keyType == 'month'? ' ': ' ')}</Text>
+         </View>);
+     };
+ 

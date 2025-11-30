@@ -1,0 +1,214 @@
+---
+description: Language conventions for F1-APP-ST project
+globs: 
+alwaysApply: true
+---
+# Language Conventions for F1-APP-ST
+
+## General Language Rules
+
+### **Development Communication**
+- **Default Language**: Use Traditional Chinese (繁體中文) for all development communication
+- **Code Comments**: Use Traditional Chinese for inline comments and documentation
+- **Variable Names**: Use English for variable names, function names, and identifiers
+- **Commit Messages**: Always use English for git commit messages
+
+### **Code Documentation**
+```javascript
+// ✅ Good - Traditional Chinese comments
+// 這個函數負責處理用戶登入邏輯
+const handleUserLogin = async (credentials) => {
+  // 驗證用戶憑證
+  const validationResult = await validateCredentials(credentials);
+  
+  if (validationResult.isValid) {
+    // 設置用戶會話
+    setUserSession(validationResult.user);
+  }
+};
+
+// ❌ Bad - English comments in code
+// This function handles user login logic
+const handleUserLogin = async (credentials) => {
+  // Validate user credentials
+  const validationResult = await validateCredentials(credentials);
+}
+```
+
+## Multi-Language Support
+
+### **Application Languages**
+The application supports three languages:
+- **CN** (Chinese Simplified - 简体中文)
+- **TH** (Thai - ภาษาไทย) 
+- **VN** (Vietnamese - Tiếng Việt)
+
+### **Translation Keys**
+```javascript
+// Use English keys for translation identifiers
+const translationKeys = {
+  'login.title': '登入',
+  'login.button': '登入',
+  'error.network': '網路連接錯誤',
+  'success.message': '操作成功'
+};
+
+// ✅ Good - English keys, Traditional Chinese values
+const strings = {
+  LOGIN_TITLE: '登入',
+  LOGIN_BUTTON: '登入',
+  NETWORK_ERROR: '網路連接錯誤',
+  SUCCESS_MESSAGE: '操作成功'
+};
+```
+
+### **File Naming for Localization**
+```
+src/locales/
+├── Images.js          // Default (Traditional Chinese)
+├── ImagesModule/
+│   ├── CN.js         // Simplified Chinese
+│   ├── TH.js         // Thai
+│   └── VN.js         // Vietnamese
+```
+
+## User Interface Text
+
+### **Static Text in Components**
+```javascript
+// ✅ Good - Use localization for user-facing text
+const LoginScreen = () => {
+  return (
+    <View>
+      <Text>{strings.LOGIN_TITLE}</Text>
+      <Button title={strings.LOGIN_BUTTON} />
+    </View>
+  );
+};
+
+// ❌ Bad - Hardcoded Chinese text
+const LoginScreen = () => {
+  return (
+    <View>
+      <Text>登入</Text>
+      <Button title="登入" />
+    </View>
+  );
+};
+```
+
+### **Error Messages**
+```javascript
+// ✅ Good - Localized error messages
+const showError = (errorKey) => {
+  const errorMessage = strings[errorKey] || strings.UNKNOWN_ERROR;
+  Alert.alert(strings.ERROR_TITLE, errorMessage);
+};
+
+// ❌ Bad - Hardcoded error messages
+const showError = () => {
+  Alert.alert('錯誤', '發生未知錯誤');
+};
+```
+
+## Development Documentation
+
+### **README and Documentation**
+- **Project README**: Use English for broader accessibility
+- **Technical Documentation**: Use Traditional Chinese for internal team
+- **API Documentation**: Use English with Traditional Chinese comments
+
+### **Code Comments Standards**
+```javascript
+// ✅ Good - Detailed Traditional Chinese comments
+/**
+ * 處理用戶付款流程
+ * @param {Object} paymentData - 付款資料
+ * @param {string} paymentData.amount - 付款金額
+ * @param {string} paymentData.currency - 貨幣類型
+ * @returns {Promise<Object>} 付款結果
+ */
+const processPayment = async (paymentData) => {
+  // 驗證付款金額是否有效
+  if (!isValidAmount(paymentData.amount)) {
+    throw new Error('付款金額無效');
+  }
+  
+  // 呼叫付款 API
+  const result = await centralPaymentAPI.charge(paymentData);
+  return result;
+};
+```
+
+## Console Logging
+
+### **Development Logs**
+```javascript
+// ✅ Good - English for logs (easier debugging)
+console.log('User authentication started');
+console.error('Payment processing failed:', error);
+console.warn('Deprecated API endpoint used');
+
+// ❌ Bad - Chinese logs (harder to search/debug)
+console.log('用戶驗證開始');
+console.error('付款處理失敗:', error);
+```
+
+## Error Handling
+
+### **Exception Messages**
+```javascript
+// ✅ Good - English for system errors, Traditional Chinese for user errors
+try {
+  await processPayment(paymentData);
+} catch (error) {
+  // System error (English)
+  console.error('Payment processing failed:', error.message);
+  
+  // User error (Traditional Chinese through localization)
+  showError('PAYMENT_FAILED');
+}
+```
+
+## Pull Request and Code Review
+
+### **Pull Request Descriptions**
+- **Title**: Use English for PR titles
+- **Description**: Use Traditional Chinese for detailed explanations
+- **Code Comments**: Use Traditional Chinese for review comments
+
+### **Code Review Comments**
+```
+# ✅ Good - Traditional Chinese for review feedback
+這個函數可以優化，建議使用 useMemo 來避免不必要的重新計算。
+
+# ✅ Good - English for technical terms
+建議在這裡加入 try-catch 來處理 async/await 的錯誤。
+```
+
+## Best Practices Summary
+
+### **Do's**
+- Use Traditional Chinese for all internal communication
+- Use English for variable names, function names, and technical identifiers
+- Use English for commit messages and PR titles
+- Use localization for all user-facing text
+- Use English for console logs and system errors
+- Use Traditional Chinese for code comments and documentation
+
+### **Don'ts**
+- Don't hardcode Chinese text in components
+- Don't use Chinese for variable names or function names
+- Don't use Chinese for commit messages
+- Don't mix languages inconsistently
+- Don't use Chinese for system error messages
+
+### **Language Priority**
+1. **User Interface**: Localized (CN/TH/VN)
+2. **Code Comments**: Traditional Chinese
+3. **Variable Names**: English
+4. **Commit Messages**: English
+5. **System Logs**: English
+6. **Documentation**: Traditional Chinese (internal), English (external)
+
+Follow [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) for proper rule formatting and structure.

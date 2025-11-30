@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download App Configuration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        input.invalid {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+        }
+        
+        input.valid {
+            border-color: #28a745;
+            background-color: #f8fff9;
+        }
+
+        .submit-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+        .submit-btn:disabled {
+            background-color: #ccc !important;
+            cursor: not-allowed;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #007bff;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        
+        .toggle-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .form-content {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        .form-content.show {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        
+        .form-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .form-group-content {
+            display: none;
+        }
+        
+        .form-group-content.show {
+            display: block;
+        }
+        
+        .form-group-toggle {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #007bff;
+            padding: 2px 8px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        
+        .form-group-toggle:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <form id="configForm">
+            <div class="section">
+                <h3>F1M3 PROD</h3>
+                <div class="form-group">
+                    <label for="token">Token (Authorization):</label>
+                    <input type="text" id="token" name="token" placeholder="请输入Token" value="" required>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>
+                    iOS
+                    <button type="button" class="toggle-btn" onclick="toggleSection('ios-section')">+</button>
+                </h3>
+                <div id="ios-section" class="form-content">
+                    <div class="form-group">
+                        <div class="form-group-header">
+                            <label for="iosAppStore">iOS App Store (iosAppStore):</label>
+                            <button type="button" class="form-group-toggle" onclick="toggleFormGroup('ios-app-store-content')">+</button>
+                        </div>
+                        <div id="ios-app-store-content" class="form-group-content">
+                            <input type="text" id="iosAppStore" name="iosAppStore" placeholder="e.g., iOS App Store马甲包url">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group-header">
+                            <label for="iosAppStoreKey">iOS App Store Key (iosAppStoreKey):</label>
+                            <button type="button" class="form-group-toggle" onclick="toggleFormGroup('ios-app-store-key-content')">+</button>
+                        </div>
+                        <div id="ios-app-store-key-content" class="form-group-content">
+                            <input type="text" id="iosAppStoreKey" name="iosAppStoreKey" placeholder="e.g., iOS 马甲包密串">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn" disabled>提交</button>
+        </form>
+
+        <div id="response" class="response"></div>
+    </div>
+
+    <script>
+                 // Function to toggle section visibility
+         function toggleSection(sectionId) {
+             const section = document.getElementById(sectionId);
+             const button = event.target;
+             
+             if (section.classList.contains('show')) {
+                 section.classList.remove('show');
+                 button.textContent = '+';
+                 // Clear all input values in this section when hiding
+                 const inputs = section.querySelectorAll('input[type="text"], input[type="url"]');
+                 inputs.forEach(input => {
+                     input.value = '';
+                 });
+                 // Re-check form validation after clearing
+                 checkFormInput();
+             } else {
+                 section.classList.add('show');
+                 button.textContent = '-';
+             }
+         }
+        
+        // Function to toggle form group visibility
+        function toggleFormGroup(contentId) {
+            const content = document.getElementById(contentId);
+            const button = event.target;
+            
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                button.textContent = '+';
+            } else {
+                content.classList.add('show');
+                button.textContent = '-';
+            }
+        }
+        
+        // Function to check form input and control submit button
+        function checkFormInput() {
+            const submitBtn = document.getElementById('submitBtn');
+            const inputs = document.querySelectorAll('#configForm input[type="text"], #configForm input[type="url"]');
+            let hasInput = false;
+            let hasToken = false;
+            
+            inputs.forEach(input => {
+                // Check token input (always visible)
+                if (input.name === 'token') {
+                    if (input.value.trim() !== '') {
+                        hasToken = true;
+                        input.classList.remove('invalid');
+                        input.classList.add('valid');
+                    } else {
+                        input.classList.remove('valid');
+                        input.classList.add('invalid');
+                    }
+                    return; // Skip token for other validations
+                }
+                
+                const isVisible = input.closest('.form-group-content').classList.contains('show');
+                
+                // Only check visible inputs for validation and submit button state
+                if (isVisible && input.value.trim() !== '') {
+                    hasInput = true;
+                    // Remove validation classes for string fields
+                    input.classList.remove('valid', 'invalid');
+                } else if (isVisible) {
+                    // Remove validation classes for empty visible fields
+                    input.classList.remove('valid', 'invalid');
+                }
+            });
+            
+            // Enable/disable submit button based on token and visible input
+            const canSubmit = hasToken && hasInput;
+            submitBtn.disabled = !canSubmit;
+            
+            if (!canSubmit) {
+                submitBtn.style.backgroundColor = '#ccc';
+            } else {
+                submitBtn.style.backgroundColor = '#007bff';
+            }
+        }
+        
+        // Add event listeners to all inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('#configForm input[type="text"], #configForm input[type="url"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', checkFormInput);
+            });
+            
+            // Initial check
+            checkFormInput();
+        });
+        
+        document.getElementById('configForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const responseDiv = document.getElementById('response');
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            // Clear previous response
+            responseDiv.style.display = 'none';
+            
+            // Get token value
+            const tokenInput = document.getElementById('token');
+            const token = tokenInput.value.trim();
+            
+            // Collect form data only from visible (expanded) inputs
+            const inputs = document.querySelectorAll('#configForm input[type="text"], #configForm input[type="url"]');
+            const data = {};
+            
+            // Process form data and only include non-empty values from visible inputs
+            inputs.forEach(input => {
+                const key = input.name;
+                const value = input.value.trim();
+                
+                // Skip token input as it goes to headers
+                if (key === 'token') {
+                    return;
+                }
+                
+                const isVisible = input.closest('.form-group-content').classList.contains('show');
+                
+                // Only include data from visible (expanded) inputs
+                if (value !== '' && isVisible) {
+                    // All fields are now strings
+                    data[key] = value;
+                }
+            });
+            
+            // Prepare the request payload
+            const payload = {
+                data: data
+            };
+            
+            // Show what will be submitted (for debugging)
+            console.log('Submitting data:', payload);
+            
+            try {
+                const response = await fetch('https://strapi.fun88.biz/api/download-app-m3', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.className = 'response success';
+                    responseDiv.innerHTML = '<strong>Success!</strong> Configuration updated successfully.<br><pre>' + JSON.stringify(result, null, 2) + '</pre>';
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.innerHTML = '<strong>Error!</strong> Failed to update configuration.<br><pre>' + JSON.stringify(result, null, 2) + '</pre>';
+                }
+                
+                responseDiv.style.display = 'block';
+                
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.innerHTML = '<strong>Error!</strong> ' + error.message;
+                responseDiv.style.display = 'block';
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = '提交';
+            }
+        });
+    </script>
+</body>
+</html>

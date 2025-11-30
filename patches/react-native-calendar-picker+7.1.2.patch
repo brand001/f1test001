@@ -1,0 +1,88 @@
+diff --git a/node_modules/react-native-calendar-picker/CalendarPicker/Day.js b/node_modules/react-native-calendar-picker/CalendarPicker/Day.js
+index 5331603..0c46989 100644
+--- a/node_modules/react-native-calendar-picker/CalendarPicker/Day.js
++++ b/node_modules/react-native-calendar-picker/CalendarPicker/Day.js
+@@ -196,12 +196,39 @@ export default function Day(props) {
+         </View>
+       );
+     } else {
++      ///1111
++      let tempStyle1 = { ...custom.style, ...computedSelectedDayStyle, ...propSelectedDayStyle }
++      let tempBackgroundColor = styles.selectedDayBackground?.backgroundColor
++      let tempWidth = styles.dayWrapper?.width / 2
++      let tempHeight = propSelectedDayStyle?.height ||computedSelectedDayStyle[0]?.height || tempStyle1.height
+       return (
+         <View style={[styles.dayWrapper, custom.containerStyle]}>
++          {
++            isThisDaySameAsSelectedStart && selectedStartDate && selectedEndDate &&
++            <View style={{
++              backgroundColor: tempBackgroundColor,
++              width: tempWidth,
++              height: tempHeight,
++              position: 'absolute',
++              right: 0
++            }}></View>
++          }
++
++          {
++            isThisDaySameAsSelectedEnd && selectedStartDate && selectedEndDate &&
++            <View style={{
++              backgroundColor: tempBackgroundColor,
++              width: tempWidth,
++              height: tempHeight,
++              position: 'absolute',
++              left: 0
++            }}></View>
++          }
+           <TouchableOpacity
+             disabled={!enableDateChange}
+             style={[custom.style, computedSelectedDayStyle, selectedDayStyle ]}
+             onPress={() => onPressDay({year, month, day}) }>
++                       
+             <Text style={[styles.dayLabel, textStyle, custom.textStyle, selectedDayTextStyle]}>
+               { day }
+             </Text>
+diff --git a/node_modules/react-native-calendar-picker/CalendarPicker/HeaderControls.js b/node_modules/react-native-calendar-picker/CalendarPicker/HeaderControls.js
+index 611bc82..ce1c5b9 100644
+--- a/node_modules/react-native-calendar-picker/CalendarPicker/HeaderControls.js
++++ b/node_modules/react-native-calendar-picker/CalendarPicker/HeaderControls.js
+@@ -63,6 +63,7 @@ export default function HeaderControls(props) {
+             { monthName }
+           </Text>
+         </TouchableOpacity>
++        <Text style={[styles.monthHeaderMainText, textStyle, monthTitleStyle]} {...accessibilityProps}>/</Text>
+         <TouchableOpacity onPress={onPressYear}>
+           <Text style={[styles.yearHeaderMainText, textStyle, yearTitleStyle]}>
+             { year }
+diff --git a/node_modules/react-native-calendar-picker/CalendarPicker/makeStyles.js b/node_modules/react-native-calendar-picker/CalendarPicker/makeStyles.js
+index cfecc7c..b5a0e6d 100644
+--- a/node_modules/react-native-calendar-picker/CalendarPicker/makeStyles.js
++++ b/node_modules/react-native-calendar-picker/CalendarPicker/makeStyles.js
+@@ -4,10 +4,13 @@
+  * Copyright 2016 Yahoo Inc.
+  * Licensed under the terms of the MIT license. See LICENSE file in the project root for terms.
+  */
++import {
++  Dimensions,
++} from "react-native";
+ const DEFAULT_SELECTED_BACKGROUND_COLOR = '#5ce600';
+ const DEFAULT_SELECTED_TEXT_COLOR = '#000000';
+ const DEFAULT_TODAY_BACKGROUND_COLOR = '#CCCCCC';
+-
++const { width, height } = Dimensions.get("window");
+ function getBorderRadiusByShape(scaler, dayShape) {
+   if (dayShape === 'square') {
+     return 0;
+@@ -148,7 +151,11 @@ export function makeStyles(params) {
+       padding: 5*scaler,
+       paddingBottom: 3*scaler,
+       marginBottom: 10*scaler,
+-      backgroundColor: 'rgba(0,0,0,0.0)'
++      backgroundColor: '#F8F8F8',
++      paddingTop: 10,
++      paddingBottom: 10,
++      marginTop: 15,
++      width: width - 30,
+     },
+ 
+     monthYearHeaderWrapper: {

@@ -1,0 +1,477 @@
+---
+description: React Native best practices and conventions for F1-APP-ST
+globs: src/**/*.js
+alwaysApply: false
+---
+# React Native Best Practices for F1-APP-ST
+
+## Component Architecture
+
+### **Component Types**
+- **Legacy Components**: Existing Class components (don't modify unless necessary)
+- **New Components**: Always use Functional components with hooks
+- **Container Components**: Store in `/src/containers/` for screens and major features
+- **Reusable Components**: Store in `/src/components/` for shared UI elements
+
+### **Functional Component Pattern**
+```javascript
+// ✅ Good - Functional component with hooks
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+
+const UserProfile = ({ navigation, route }) => {
+  const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    // 載入用戶資料
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    setLoading(true);
+    try {
+      const data = await Api.getUserProfile();
+      setUserData(data);
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View>
+      {loading ? (
+        <Text>載入中...</Text>
+      ) : (
+        <Text>{userData?.name}</Text>
+      )}
+    </View>
+  );
+};
+
+export default UserProfile;
+```
+
+### **Class Component Pattern (Legacy)**
+```javascript
+// ✅ Acceptable - Keep existing class components as-is
+import React, { Component } from 'react';
+import { View, Text } from 'react-native';
+
+class LegacyComponent extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: false,
+      data: null
+    };
+  }
+
+  componentDidMount() {
+    this.loadData();
+  }
+
+  // Keep existing patterns unchanged
+  render() {
+    return (
+      <View>
+        {/* Existing component logic */}
+      </View>
+    );
+  }
+}
+
+export default LegacyComponent;
+```
+
+## State Management
+
+### **Local State with useState**
+```javascript
+// ✅ Good - Use useState for local component state
+const [loading, setLoading] = useState(false);
+const [formData, setFormData] = useState({
+  username: '',
+  password: ''
+});
+
+// Handle form updates
+const updateFormData = (field, value) => {
+  setFormData(prev => ({
+    ...prev,
+    [field]: value
+  }));
+};
+```
+
+### **Global State with Redux**
+```javascript
+// ✅ Good - Connect to Redux store
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { loginUser, logoutUser } from '../actions/UserActions';
+
+const UserScreen = ({ user, loginUser, logoutUser }) => {
+  // Component logic
+};
+
+const mapStateToProps = (state) => ({
+  user: state.user,
+  isAuthenticated: state.auth.isAuthenticated
+});
+
+const mapDispatchToProps = (dispatch) => 
+  bindActionCreators({ loginUser, logoutUser }, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserScreen);
+```
+
+## Navigation Patterns
+
+### **React Navigation 6 Pattern**
+```javascript
+// ✅ Good - Use React Navigation 6 for new screens
+import { useNavigation, useRoute } from '@react-navigation/native';
+
+const NewScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  const handleNavigate = () => {
+    navigation.navigate('TargetScreen', {
+      userId: route.params?.userId
+    });
+  };
+
+  return (
+    <TouchableOpacity onPress={handleNavigate}>
+      <Text>前往下一頁</Text>
+    </TouchableOpacity>
+  );
+};
+```
+
+### **Legacy Navigation Pattern**
+```javascript
+// ✅ Acceptable - Keep existing navigation patterns
+import { Actions } from 'react-native-router-flux';
+
+const handleLegacyNavigation = () => {
+  Actions.push('targetScene', { userId: 123 });
+};
+```
+
+## Performance Optimization
+
+### **Image Optimization**
+```javascript
+// ✅ Good - Use FastImage for better performance
+import FastImage from 'react-native-fast-image';
+
+const UserAvatar = ({ imageUrl }) => (
+  <FastImage
+    style={{ width: 50, height: 50 }}
+    source={{
+      uri: imageUrl,
+      priority: FastImage.priority.normal,
+    }}
+    resizeMode={FastImage.resizeMode.cover}
+  />
+);
+```
+
+### **List Performance**
+```javascript
+// ✅ Good - Use FlatList with optimization
+import { FlatList } from 'react-native';
+
+const GameList = ({ games }) => {
+  const renderGame = ({ item }) => (
+    <GameItem game={item} />
+  );
+
+  return (
+    <FlatList
+      data={games}
+      renderItem={renderGame}
+      keyExtractor={item => item.id.toString()}
+      getItemLayout={(data, index) => ({
+        length: 80,
+        offset: 80 * index,
+        index,
+      })}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={10}
+      windowSize={10}
+    />
+  );
+};
+```
+
+## API Integration
+
+### **API Call Pattern**
+```javascript
+// ✅ Good - Use consistent API pattern
+import { Api } from '../actions/Api';
+
+const fetchUserBets = async () => {
+  try {
+    setLoading(true);
+    const response = await Api.getUserBets({
+      userId: currentUser.id,
+      page: 1,
+      limit: 20
+    });
+    
+    if (response.success) {
+      setBets(response.data);
+    } else {
+      showError('FETCH_BETS_FAILED');
+    }
+  } catch (error) {
+    console.error('API Error:', error);
+    showError('NETWORK_ERROR');
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+### **Error Handling**
+```javascript
+// ✅ Good - Consistent error handling
+const showError = (errorKey) => {
+  const errorMessage = strings[errorKey] || strings.UNKNOWN_ERROR;
+  Alert.alert(strings.ERROR_TITLE, errorMessage);
+};
+```
+
+## Styling Best Practices
+
+### **StyleSheet Usage**
+```javascript
+// ✅ Good - Use StyleSheet.create for performance
+import { StyleSheet } from 'react-native';
+
+const GameCard = () => (
+  <View style={styles.container}>
+    <Text style={styles.title}>遊戲標題</Text>
+  </View>
+);
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 12
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333'
+  }
+});
+```
+
+### **Responsive Design**
+```javascript
+// ✅ Good - Use Dimensions for responsive design
+import { Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+  container: {
+    width: width * 0.9,
+    height: height * 0.6
+  },
+  // Use percentage or calculated values
+  halfWidth: {
+    width: width / 2 - 20
+  }
+});
+```
+
+## Platform-Specific Code
+
+### **Platform Checks**
+```javascript
+// ✅ Good - Handle platform differences
+import { Platform } from 'react-native';
+
+const LoginButton = () => (
+  <TouchableOpacity 
+    style={[
+      styles.button,
+      Platform.OS === 'ios' ? styles.iosButton : styles.androidButton
+    ]}
+  >
+    <Text>登入</Text>
+  </TouchableOpacity>
+);
+
+const styles = StyleSheet.create({
+  button: {
+    padding: 12,
+    borderRadius: 8
+  },
+  iosButton: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4
+  },
+  androidButton: {
+    elevation: 4
+  }
+});
+```
+
+## Memory Management
+
+### **useEffect Cleanup**
+```javascript
+// ✅ Good - Clean up effects
+useEffect(() => {
+  const subscription = NetInfo.addEventListener(state => {
+    setIsConnected(state.isConnected);
+  });
+
+  // 清理訂閱
+  return () => subscription();
+}, []);
+```
+
+### **Timer Management**
+```javascript
+// ✅ Good - Clear timers
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setShowSplash(false);
+  }, 3000);
+
+  return () => clearTimeout(timer);
+}, []);
+```
+
+## Security Best Practices
+
+### **Sensitive Data Storage**
+```javascript
+// ✅ Good - Use secure storage for sensitive data
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const storeSecureData = async (key, value) => {
+  try {
+    await AsyncStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error('Storage error:', error);
+  }
+};
+```
+
+### **Input Validation**
+```javascript
+// ✅ Good - Validate user input
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const handleLogin = () => {
+  if (!validateEmail(email)) {
+    showError('INVALID_EMAIL');
+    return;
+  }
+  
+  // 繼續登入流程
+};
+```
+
+## Testing Considerations
+
+### **Component Testing**
+```javascript
+// ✅ Good - Write testable components
+const BettingCard = ({ game, onBet }) => {
+  const handleBet = () => {
+    if (onBet) {
+      onBet(game.id);
+    }
+  };
+
+  return (
+    <TouchableOpacity testID="betting-card" onPress={handleBet}>
+      <Text testID="game-title">{game.title}</Text>
+    </TouchableOpacity>
+  );
+};
+```
+
+## Common Anti-Patterns to Avoid
+
+### **❌ Don't Do**
+```javascript
+// Don't use inline styles for static styles
+<View style={{ padding: 16, backgroundColor: '#fff' }}>
+
+// Don't forget to handle loading states
+const fetchData = async () => {
+  const data = await Api.getData(); // Missing loading states
+  setData(data);
+};
+
+// Don't use direct state mutation
+setState(state.push(newItem)); // Mutates state directly
+
+// Don't forget platform-specific considerations
+<Button title="登入" /> // May look different on iOS vs Android
+```
+
+### **✅ Do This Instead**
+```javascript
+// Use StyleSheet for static styles
+<View style={styles.container}>
+
+// Handle loading states properly
+const fetchData = async () => {
+  setLoading(true);
+  try {
+    const data = await Api.getData();
+    setData(data);
+  } catch (error) {
+    handleError(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Use immutable state updates
+setState([...state, newItem]);
+
+// Consider platform-specific styling
+<TouchableOpacity style={styles.button}>
+  <Text>登入</Text>
+</TouchableOpacity>
+```
+
+## Version Compatibility
+
+### **React Native 0.70.9 Considerations**
+- Use compatible library versions
+- Avoid latest React Native features not available in 0.70.9
+- Test thoroughly on both iOS and Android
+- Use CodePush for OTA updates
+
+### **Dependency Management**
+```javascript
+// ✅ Good - Check compatibility before upgrading
+// Always test new dependencies with React Native 0.70.9
+// Use exact versions in package.json for stability
+```
+
+Follow [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) for proper rule formatting and structure.

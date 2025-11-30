@@ -1,0 +1,6 @@
+[submodule "shared"]
+	path = shared
+	url = https://github.com/a0921313520/shared.git
+[submodule "Central-Payment"]
+	path = Central-Payment
+	url = https://github.com/a0921313520/Central-Payment.git

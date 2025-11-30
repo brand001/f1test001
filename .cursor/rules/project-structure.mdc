@@ -1,0 +1,239 @@
+---
+description: F1-APP-ST React Native project structure and organization
+globs: 
+alwaysApply: true
+---
+# F1-APP-ST Project Structure
+
+This rule outlines the directory structure and organization of the F1-APP-ST React Native project - a cross-platform mobile application.
+
+## Project Overview
+
+**F1-APP-ST** is a React Native application that provides:
+- Cross-platform mobile experience (iOS/Android)
+- Multi-language support (CN/TH/VN)
+- Gaming and betting features
+- Live chat functionality
+- User authentication and profiles
+
+## Root Directory Structure
+
+```
+F1-APP-ST/
+├── android/            # 🤖 Android platform specific code
+├── ios/               # 🍎 iOS platform specific code
+├── src/               # 📱 Main application source code
+├── scripts/           # 🔧 Build and utility scripts
+├── patches/           # 🔄 Package patches
+├── package/           # 📦 Package documentation
+├── __tests__/         # 🧪 Test files
+├── app.json           # 📋 React Native app configuration
+├── babel.config.js    # 🔧 Babel configuration
+└── package.json       # 📦 Dependencies and scripts
+```
+
+## Source Code Structure (`/src/`)
+
+**Purpose**: Main application logic and components
+
+```
+src/
+├── actions/           # 📡 API calls and data fetching
+├── components/        # 🎨 Reusable UI components
+├── containers/        # 📄 Screen components and page logic
+├── images/           # 🖼️ Static image assets
+├── lib/              # 🛠️ Utility functions and helpers
+├── locales/          # 🌐 Internationalization files
+├── App.js            # 🚀 Main application entry point
+└── CodePushIos.json  # 📱 iOS CodePush configuration
+```
+
+## Components Directory (`/src/components/`)
+
+**Purpose**: Reusable UI components used across the application
+
+```
+components/
+├── icons/            # 🎯 Icon components and SVG files
+│   ├── svg/         # Raw SVG files
+│   └── [Icon].js    # React icon components
+├── Modals/          # 🪟 Modal components
+├── Nav/             # 🧭 Navigation components
+│   ├── GameNav/     # Game-specific navigation
+│   ├── NavBack.js   # Back navigation
+│   ├── NavTab.js    # Tab navigation
+│   └── NavTitle.js  # Title navigation
+├── SplashScreen/    # 📱 App launch screens
+├── Captcha/         # 🔒 Security components
+├── Button.js        # 🔘 Button component
+├── BettingCalendar.js  # 📅 Betting calendar
+└── CarouselBanner.js   # 🎠 Banner carousel
+```
+
+## Containers Directory (`/src/containers/`)
+
+**Purpose**: Screen components and major feature containers
+
+```
+containers/
+├── Bank/            # 💳 Banking and payment features
+├── BettingRecord/   # 📊 Betting history and records
+├── Common/          # 🔄 Shared container components
+├── Game/            # 🎮 Game-related screens
+│   ├── AviatorGame/     # Aviator game
+│   ├── ProductGamePage/    # Game pages
+│   └── ProductIntro/       # Game introductions
+├── Home/            # 🏠 Home screen components
+├── Login/           # 🔐 Authentication screens
+├── LoginPage/       # 📱 Login page variants
+├── Profile/         # 👤 User profile screens
+├── PromoTab/        # 🎁 Promotions and bonuses
+├── SbSportsCN/      # 🏀 Sports betting (Chinese)
+├── SbSportsVN/      # 🏀 Sports betting (Vietnamese)
+├── LiveChat/        # 💬 Live chat functionality
+├── Main.js          # 🚀 Main container
+└── Layout.js        # 📐 Layout wrapper
+```
+
+## Images Directory (`/src/images/`)
+
+**Purpose**: Static image assets organized by feature and language
+
+```
+images/
+├── home/            # 🏠 Home screen images
+│   ├── CN/         # Chinese locale images
+│   ├── TH/         # Thai locale images
+│   └── VN/         # Vietnamese locale images
+├── icon/            # 🎯 Application icons
+├── login/           # 🔐 Login screen images
+├── news/            # 📰 News and announcements
+├── promotion/       # 🎁 Promotion banners
+├── user/            # 👤 User profile images
+├── game/            # 🎮 Game-related images
+├── usdtInfo/        # 💰 USDT information images
+├── verification/    # ✅ Verification images
+└── index.js         # 📋 Image exports
+```
+
+## Actions Directory (`/src/actions/`)
+
+**Purpose**: API calls and data management
+
+```
+actions/
+├── Api.js           # 🌐 Main API client
+├── Api.json         # 📋 API configuration
+├── CmsApi.js        # 📰 CMS API calls
+└── [Feature]Api.js  # Feature-specific API calls
+```
+
+## Library Directory (`/src/lib/`)
+
+**Purpose**: Utility functions and shared logic
+
+```
+lib/
+├── utils/           # 🔧 Utility functions
+├── redux/           # 🗃️ State management
+├── data/            # 📊 Static data
+└── proxy.js         # 🔗 Proxy configuration
+```
+
+## Platform-Specific Directories
+
+### Android (`/android/`)
+```
+android/
+├── app/             # 📱 Android app configuration
+│   ├── src/        # Java/Kotlin source code
+│   └── libs/       # Android libraries (AAR files)
+├── build.gradle     # 🔧 Build configuration
+└── gradle.properties  # 🔧 Gradle properties
+```
+
+### iOS (`/ios/`)
+```
+ios/
+├── FedevProject/    # 🍎 iOS project files
+│   ├── AppDelegate.h/mm  # App delegate
+│   ├── Images.xcassets/  # Image assets
+│   └── [localization].lproj/  # Localization files
+├── FedevProject.xcodeproj/  # Xcode project
+└── Podfile          # 🔧 CocoaPods dependencies
+```
+
+## Key Configuration Files
+
+### React Native Configuration
+- `app.json` - React Native app configuration
+- `babel.config.js` - Babel transpilation setup
+- `package.json` - Dependencies and scripts
+
+### Build & Development
+- `build_ios_zip.js` - iOS build script
+- `domain.js` - Domain configuration
+- `Gemfile` - Ruby dependencies for iOS
+
+### Patches
+- `patches/` - Contains patches for third-party packages
+- Applied during npm install to fix package issues
+
+## Component Organization Patterns
+
+### Screen Components (`/src/containers/`)
+- **Feature-based**: Grouped by application feature
+- **Self-contained**: Each screen includes its own logic
+- **Shared components**: Common UI elements in `/src/components/`
+
+### Reusable Components (`/src/components/`)
+- **Atomic design**: Small, focused components
+- **Icon system**: Centralized icon management
+- **Navigation**: Consistent navigation patterns
+
+### Image Assets (`/src/images/`)
+- **Locale-specific**: Organized by language/region
+- **Feature-grouped**: Images grouped by app feature
+- **Centralized exports**: All images exported from index.js
+
+## File Naming Conventions
+
+### Components
+- **PascalCase**: `BettingCalendar.js`, `CarouselBanner.js`
+- **Descriptive**: Purpose clearly indicated in name
+- **Consistent prefixes**: `Landing*`, `Nav*`, etc.
+
+### Containers
+- **PascalCase**: `BankCard.js`, `Login.js`
+- **Feature-focused**: Named after the feature they implement
+- **Screen suffix**: Sometimes includes "Page" or "Screen"
+
+### Images
+- **camelCase**: `headerBG3.png`, `homeModalCarousel`
+- **Descriptive**: Clear indication of usage
+- **Locale-specific**: Organized in country code folders
+
+## Multi-Language Support
+
+The project supports multiple languages:
+- **CN** (Chinese)
+- **TH** (Thai)
+- **VN** (Vietnamese)
+
+**Localization Structure**:
+```
+src/locales/         # Translation files
+images/home/CN/      # Chinese images
+images/home/TH/      # Thai images  
+images/home/VN/      # Vietnamese images
+ios/*/[locale].lproj/ # iOS localization
+```
+
+## Important Project Notes
+
+1. **Static Export**: This project uses static export (`next export`), so SSR operations are not available
+2. **Component Architecture**: Old modules use Class components (no need to change), new components should use Functional components
+3. **Browser Support**: Generated code should support mainstream desktop/mobile browsers from the last 2 years
+4. **Language**: Use Traditional Chinese normally, English for commits
+
+Follow [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) for proper rule formatting and structure.

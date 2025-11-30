@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+yarn.lock
+package-lock.json
+
+# Build outputs
+build
+dist
+coverage
+
+# Cache
+.cache
+.eslintcache
+.npm
+.env
+
+# IDE
+.idea
+.vscode
+
+# Already formatted files
+# src/**/*
+
+# Other directories
+ios/**/*
+android/**/*
+
+src/containers/Central-Payment/
+
