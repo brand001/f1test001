@@ -1,0 +1,5 @@
+NSCameraUsageDescription = "允许使用系统相机";
+NSFaceIDUsageDescription = "您是否允许使用Face ID登录 $(PRODUCT_NAME)？";
+NSMicrophoneUsageDescription = "允许使用麦克风";
+NSPhotoLibraryAddUsageDescription = "允许使用系统相册中的照片";
+NSPhotoLibraryUsageDescription = "允许使用系统相册中的照片"; 

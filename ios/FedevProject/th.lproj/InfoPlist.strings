@@ -1,0 +1,5 @@
+NSCameraUsageDescription = "อนุญาตให้ใช้กล้องระบบ";
+NSFaceIDUsageDescription = "คุณอนุญาตให้เข้าสู่ระบบ $(PRODUCT_NAME) ด้วย Face ID หรือไม่?";
+NSMicrophoneUsageDescription = "อนุญาตให้ใช้ไมโครโฟน";
+NSPhotoLibraryAddUsageDescription = "อนุญาตให้ใช้รูปภาพจากคลังภาพระบบ";
+NSPhotoLibraryUsageDescription = "อนุญาตให้ใช้รูปภาพจากคลังภาพระบบ"; 

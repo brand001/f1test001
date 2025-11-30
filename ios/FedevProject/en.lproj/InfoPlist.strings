@@ -1,0 +1,5 @@
+NSCameraUsageDescription = "Allow to use system camera";
+NSFaceIDUsageDescription = "Do you allow to login $(PRODUCT_NAME) with Face ID?";
+NSMicrophoneUsageDescription = "Allow to use microphone";
+NSPhotoLibraryAddUsageDescription = "Allow to use photos from system library";
+NSPhotoLibraryUsageDescription = "Allow to use photos from system library"; 

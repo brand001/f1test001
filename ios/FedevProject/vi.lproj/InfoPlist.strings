@@ -1,0 +1,5 @@
+NSCameraUsageDescription = "Cho phép sử dụng camera hệ thống";
+NSFaceIDUsageDescription = "Bạn có cho phép đăng nhập $(PRODUCT_NAME) bằng Face ID ?";
+NSMicrophoneUsageDescription = "Cho phép sử dụng microphone";
+NSPhotoLibraryAddUsageDescription = "Cho phép sử dụng ảnh từ thư viện hệ thống";
+NSPhotoLibraryUsageDescription = "Cho phép sử dụng ảnh từ thư viện hệ thống"; 
