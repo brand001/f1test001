@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:forceDarkAllowed">false</item>
+        
+        <!-- Android 11+ 最激进的刘海屏适配 - always模式允许内容延伸到所有刘海区域 -->
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:windowFullscreen">true</item>
+        
+        <!-- 完全沉浸式体验 -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:fitsSystemWindows">false</item>
+        
+        <!-- 移除状态栏和导航栏的对比度强制 -->
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+    </style>
+    
+</resources> 

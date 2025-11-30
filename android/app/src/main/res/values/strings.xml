@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">FUN88</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">OwFaj8xcOf9rGIV2ji4w6tzi3YBD4ksvOXqog</string>
+    <string name="agreement_title">隐私政策授权</string>
+    <string name="agreement_msg">隐私政策说明…</string>
+    <string name="agreement_ok">同意</string>
+    <string name="agreement_cancel">拒绝</string>
+    <string name="device_token">DeviceToken</string>
+    <string name="app_notification_right">弹出通知权限是否打开：%s</string>
+</resources>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="launch_screen_drawable" type="drawable">@drawable/launch_screen_vn</item>
+</resources> 
